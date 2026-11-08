@@ -53,11 +53,27 @@
   const solid = () => nav && nav.classList.toggle('is-solid', window.scrollY > 40);
   solid(); addEventListener('scroll', solid, { passive: true });
   const outside = () => [$('main'), $('footer')].filter(Boolean);
+  // Freeze the page behind the open menu. overflow:hidden on <body> alone doesn't stop
+  // touch scrolling (the document scrolls, and iOS ignores it), so pin <body> in place
+  // and put the reader back where they were when the menu closes.
+  let lockedY = 0;
+  function lockScroll(on) {
+    const b = document.body.style, h = document.documentElement.style;
+    if (on) {
+      lockedY = window.scrollY;
+      h.overflow = 'hidden';
+      Object.assign(b, { position: 'fixed', top: -lockedY + 'px', left: '0', right: '0', width: '100%' });
+    } else {
+      h.overflow = '';
+      Object.assign(b, { position: '', top: '', left: '', right: '', width: '' });
+      window.scrollTo({ top: lockedY, behavior: 'instant' });
+    }
+  }
   function setMenu(open) {
     if (!menu) return;
     menu.classList.toggle('open', open); nav.classList.toggle('is-open', open);
     toggle.setAttribute('aria-expanded', String(open));
-    document.body.style.overflow = open ? 'hidden' : '';
+    lockScroll(open);
     outside().forEach((el) => { el.inert = open; });
     if (open) { const f = $('a', menu); if (f) f.focus(); }
   }

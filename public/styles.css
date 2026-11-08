@@ -1000,3 +1000,12 @@ body { font-family: var(--font); }
 .pt__svc { font-size: 1.3rem; }
 .contact__mail h2, .foot__cols h2, .walk__heading, .pt__save b { font-family: var(--font); text-transform: uppercase; letter-spacing: .16em; font-size: .74rem; font-weight: 500; color: var(--fg-2); }
 .gnav__cta, .btn { font-family: var(--font); font-weight: 600; }
+
+/* ===== Mobile menu fix: the solid-header rule above re-adds backdrop-filter, and any filter on
+   .gnav makes it the containing block for the fixed #menu, so the open menu shrank to a 40px
+   strip with no background and the links spilled over the page. Drop the filter while open,
+   and let a long menu scroll inside itself instead of moving the page behind it. ===== */
+@media (max-width: 760px) {
+  .gnav.is-open { background: var(--bg); backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .gnav__links { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+}
