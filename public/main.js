@@ -384,8 +384,9 @@
   // player (youtube-nocookie.com) replaces the poster, and when the film ends a
   // "Book a demo" panel appears over it.
   const FILMS = {
-    hl: { id: '6GGs0G_H2Iw', name: 'HoneyLine', q: 'Want your line filmed like this?' },
-    pw: { id: 'QqLti2BNhuA', name: 'PW-600', q: 'Want your machine filmed like this?' },
+    hl: { id: 'aNGicLAuwcw', name: 'HoneyLine', q: 'Want your line filmed like this?' },
+    pw: { id: 'wTLwFFbPTOU', name: 'PW-600', q: 'Want your machine filmed like this?' },
+  mc: { id: 'xWSQO_PbROE', name: 'Machining Cell', q: 'Want your cell filmed like this?' },
   };
   let ytReady = null;
   const loadYT = () => ytReady || (ytReady = new Promise((ok, fail) => {
