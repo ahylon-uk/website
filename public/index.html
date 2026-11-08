@@ -22,7 +22,7 @@
 <link rel="icon" href="/img/icon-192.png" type="image/png" sizes="192x192">
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
-<link rel="preload" as="image" href="/video/reel-pw600.jpg" fetchpriority="high">
+<link rel="preload" as="image" href="/video/hero-loop.jpg" fetchpriority="high">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Unbounded:wght@600;700&display=swap" rel="stylesheet">
@@ -49,27 +49,47 @@
 </header>
 <main id="main">
 <section class="hero" data-hero>
-  <div class="hero__media"><video src="/video/reel-pw600.mp4" poster="/video/reel-pw600.jpg" autoplay muted loop playsinline preload="metadata" aria-label="PW-600 parts washer simulation"></video></div>
+  <div class="hero__media"><video src="/video/hero-loop.mp4" poster="/video/hero-loop.jpg" autoplay muted loop playsinline preload="metadata" aria-label="Clips from our digital twins: a palletising robot, a machining cell and a parts washer"></video></div>
   <div class="hero__shade" aria-hidden="true"></div>
   <div class="wrap hero__copy">
     <p class="hero__kicker">Digital twins · VR trade-show demos · Machine simulation</p>
     <h1 class="hero__title"><span class="ln"><span>Take your machine</span></span><span class="ln"><span>to every show</span></span><span class="ln"><span>without shipping it.</span></span></h1>
-    <p class="hero__intro">3D simulation, VR at your stand, promo films and operator training for UK machine builders. Built from your CAD.</p>
+    <p class="hero__intro">We build a working 3D copy of your machine from your CAD. Show it in VR at your stand, sell with it and train on it, while the real one stays in your factory.</p>
     <div class="actions"><a class="btn" href="/contact/">Book a demo</a><button class="link link--film" type="button" data-film-open="hl"><span class="link__play" aria-hidden="true"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M6 4l10 6-10 6z"/></svg></span>Watch the film · 1:31</button></div>
   </div>
   <button class="hero__pause" aria-label="Pause background video" data-pause><span></span><span></span></button>
 </section>
+<section class="block" id="work">
+  <div class="wrap sechead"><div><h2 class="h2" data-reveal>Machines we’ve already built.</h2><p class="body" data-reveal>Three projects, each built from real drawings. Open one to see how it works.</p></div><div data-reveal><a class="link" href="/samples/">All samples and films<svg class="chev" viewBox="0 0 8 14" aria-hidden="true"><path d="M1 1l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div></div>
+  <div class="wrap reels">
+    <a class="reel" href="/work/pw-600/" data-reveal>
+      <video src="/video/reel-pw600-card.mp4" poster="/video/reel-pw600-card.jpg" muted loop playsinline preload="none" data-hover aria-hidden="true" tabindex="-1"></video>
+      <span class="reel__txt"><span class="reel__k">Parts washing</span><span class="reel__h">PW-600 parts washer</span><span class="reel__p">A full wash cycle, from dirty basket to clean parts, with a working control screen.</span></span>
+      <span class="reel__play" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M6 4l10 6-10 6z"/></svg></span>
+    </a>
+    <a class="reel" href="/work/honeyline/" data-reveal>
+      <video src="/video/reel-honeyline.mp4" poster="/video/reel-honeyline.jpg" muted loop playsinline preload="none" data-hover aria-hidden="true" tabindex="-1"></video>
+      <span class="reel__txt"><span class="reel__k">Packaging line</span><span class="reel__h">HoneyLine packing line</span><span class="reel__p">Eight machines, from flat carton to wrapped pallet.</span></span>
+      <span class="reel__play" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M6 4l10 6-10 6z"/></svg></span>
+    </a>
+    <a class="reel" href="/work/machining-cell/" data-reveal>
+      <video src="/video/reel-machining.mp4" poster="/video/reel-machining.jpg" muted loop playsinline preload="none" data-hover aria-hidden="true" tabindex="-1"></video>
+      <span class="reel__txt"><span class="reel__k">Robot machining</span><span class="reel__h">Machining Cell</span><span class="reel__p">Raw castings in, measured parts out. One robot runs the whole cell.</span></span>
+      <span class="reel__play" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M6 4l10 6-10 6z"/></svg></span>
+    </a>
+  </div>
+</section>
 <section class="block" id="problems">
-  <div class="wrap"><h2 class="h2" data-reveal>The problems we fix.</h2>
-  <p class="body" data-reveal>One 3D model of your machine, used four ways. You pay for the model once.</p></div>
+  <div class="wrap"><h2 class="h2" data-reveal>One model. Four ways to use it.</h2>
+  <p class="body" data-reveal>We build the 3D model of your machine once. Then it works at every show, in every sales meeting and in your training room.</p></div>
   <div class="wrap ptgrid">
     <a class="pt" href="/services/#vr" data-reveal>
       <span class="pt__img"><img src="/img/vr.webp" srcset="/img/sm/vr.webp 800w, /img/vr.webp 1400w" sizes="(min-width:1024px) 40vw, 100vw" alt="VR view of a running machine for a trade-show stand" width="1400" height="788" loading="lazy"></span>
       <span class="pt__body">
         <span class="pt__svc">VR at your stand</span>
-        <span class="pt__problem">Your machine is too big, too heavy or too costly to ship to every show.</span>
-        <span class="pt__fix">Visitors put on a headset and stand inside a running copy of it. The real machine stays in your factory.</span>
-        <span class="pt__save"><b>Saves</b> Freight, crating, install and running costs at each show.</span>
+        <span class="pt__problem">Too big or too costly to ship to every show?</span>
+        <span class="pt__fix">Visitors put on a headset and stand inside a running copy. The real one stays in your factory.</span>
+        <span class="pt__save"><b>Saves</b> Freight, crating and install at every show.</span>
         <span class="link">More about VR<svg class="chev" viewBox="0 0 8 14" aria-hidden="true"><path d="M1 1l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </span>
     </a>
@@ -77,19 +97,19 @@
       <span class="pt__img"><img src="/img/hero.webp" srcset="/img/sm/hero.webp 800w, /img/hero.webp 1400w" sizes="(min-width:1024px) 40vw, 100vw" alt="3D digital twin of an industrial machine with its operator panel" width="1400" height="788" loading="lazy"></span>
       <span class="pt__body">
         <span class="pt__svc">3D simulation</span>
-        <span class="pt__problem">Buyers can’t picture a machine or line that doesn’t exist yet.</span>
-        <span class="pt__fix">They walk round it, open it up and run it on a screen, built from your real CAD.</span>
-        <span class="pt__save"><b>Saves</b> Earlier decisions and fewer late changes.</span>
-        <span class="link">More about 3d simulation<svg class="chev" viewBox="0 0 8 14" aria-hidden="true"><path d="M1 1l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="pt__problem">Buyers can’t picture a machine that isn’t built yet?</span>
+        <span class="pt__fix">Let them walk round it, open it up and watch it run, on any screen.</span>
+        <span class="pt__save"><b>Saves</b> Late design changes and slow decisions.</span>
+        <span class="link">More about 3D simulation<svg class="chev" viewBox="0 0 8 14" aria-hidden="true"><path d="M1 1l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </span>
     </a>
     <a class="pt" href="/services/#films" data-reveal>
       <span class="pt__img"><img src="/img/film-pw.webp" srcset="/img/sm/film-pw.webp 800w, /img/film-pw.webp 1400w" sizes="(min-width:1024px) 40vw, 100vw" alt="Washer drum turning in water, still from the PW-600 film" width="1400" height="788" loading="lazy"></span>
       <span class="pt__body">
         <span class="pt__svc">Promo films</span>
-        <span class="pt__problem">Posters and brochures don’t stop anyone walking past your stand.</span>
-        <span class="pt__fix">HD films rendered from the simulation, for your stand screen, website and LinkedIn.</span>
-        <span class="pt__save"><b>Saves</b> Filming days, and shipping the machine just to film it.</span>
+        <span class="pt__problem">Brochures don’t stop people walking past your stand?</span>
+        <span class="pt__fix">HD films rendered from the model, for your stand screen, website and LinkedIn.</span>
+        <span class="pt__save"><b>Saves</b> Film crews, and shipping the machine just to film it.</span>
         <span class="link">More about promo films<svg class="chev" viewBox="0 0 8 14" aria-hidden="true"><path d="M1 1l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </span>
     </a>
@@ -97,44 +117,15 @@
       <span class="pt__img"><img src="/img/training.webp" srcset="/img/sm/training.webp 800w, /img/training.webp 1400w" sizes="(min-width:1024px) 40vw, 100vw" alt="Operator-training view of the PW-600 with information points" width="1400" height="788" loading="lazy"></span>
       <span class="pt__body">
         <span class="pt__svc">Operator training</span>
-        <span class="pt__problem">New operators learn on live equipment, so production slows and mistakes cost money.</span>
-        <span class="pt__fix">They learn on the twin first: guided tasks and the real HMI, with no risk to people or kit.</span>
+        <span class="pt__problem">New operators slowing the line while they learn?</span>
+        <span class="pt__fix">They practise on the twin first, with guided tasks and a working copy of the control screen.</span>
         <span class="pt__save"><b>Saves</b> Line time lost to first-time training.</span>
         <span class="link">More about operator training<svg class="chev" viewBox="0 0 8 14" aria-hidden="true"><path d="M1 1l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </span>
     </a>
   </div>
 </section>
-<section class="block washsec" id="wash-a">
-  <div class="wrap washsec__head" data-reveal><h2 class="h2">Try one we built: the PW-600 washer.</h2><p class="body">This is its real control screen, running in your browser. Press Start and watch it wash a basket.</p></div>
-  <div class="wrap" data-reveal>
-    <div class="wash" data-wash data-cycle='[3, 4, 5, 5, 3, 5, 3]'>
-      <div class="wash__bar"><span class="wash__brand">PW-600 <i>|</i> ROTARY PARTS WASHER</span><span class="wash__time" data-w="time">00:00</span><span class="wash__mode" data-w="mode">READY</span></div>
-      <div class="wash__grid">
-        <ol class="wash__steps"><li data-step="0"><span>1</span>Load</li><li data-step="1"><span>2</span>Flood</li><li data-step="2"><span>3</span>Ultrasonic</li><li data-step="3"><span>4</span>Spray</li><li data-step="4"><span>5</span>Drain and filter</li><li data-step="5"><span>6</span>Rinse and dry</li><li data-step="6"><span>7</span>Unload</li></ol>
-        <div class="wash__view">
-          <svg class="wash__svg" data-w="svg" viewBox="0 0 240 160" role="img" aria-label="Wash chamber diagram">
-            <rect x="20" y="12" width="200" height="136" rx="10" class="wash__tank"/>
-            <clipPath id="tankclip-a"><rect x="22" y="14" width="196" height="132" rx="9"/></clipPath>
-            <g clip-path="url(#tankclip-a)"><rect x="20" y="148" width="200" height="0" class="wash__water" data-w="water"/><g class="wash__bubbles" data-w="bubbles"><circle cx="40" cy="140" r="2" style="--b:0.00s"/><circle cx="57" cy="140" r="3" style="--b:0.27s"/><circle cx="74" cy="140" r="4" style="--b:0.54s"/><circle cx="91" cy="140" r="2" style="--b:0.81s"/><circle cx="108" cy="140" r="3" style="--b:1.08s"/><circle cx="125" cy="140" r="4" style="--b:1.35s"/><circle cx="142" cy="140" r="2" style="--b:1.62s"/><circle cx="159" cy="140" r="3" style="--b:1.89s"/><circle cx="176" cy="140" r="4" style="--b:2.16s"/><circle cx="193" cy="140" r="2" style="--b:2.43s"/></g></g>
-            <g transform="translate(60 20)"><g class="wash__drum" data-w="drum"><circle cx="60" cy="60" r="48"/><circle cx="60" cy="60" r="8"/><line x1="60" y1="60" x2="104.0" y2="60.0"/><line x1="60" y1="60" x2="91.1" y2="91.1"/><line x1="60" y1="60" x2="60.0" y2="104.0"/><line x1="60" y1="60" x2="28.9" y2="91.1"/><line x1="60" y1="60" x2="16.0" y2="60.0"/><line x1="60" y1="60" x2="28.9" y2="28.9"/><line x1="60" y1="60" x2="60.0" y2="16.0"/><line x1="60" y1="60" x2="91.1" y2="28.9"/></g></g>
-            <g class="wash__jets" data-w="jets"><path d="M30 30l26 18M30 80h26M30 130l26-18M210 30l-26 18M210 80h-26M210 130l-26-18"/></g>
-          </svg>
-          <p class="wash__stage" data-w="stage">Ready to wash</p>
-        </div>
-        <div class="wash__gauges">
-          <div><span class="wash__k">Water level</span><span class="wash__v" data-w="level">0 %</span><span class="wash__meter"><i data-w="levelbar"></i></span></div>
-          <div><span class="wash__k">Temperature</span><span class="wash__v" data-w="temp">18 °C</span><span class="wash__meter"><i data-w="tempbar"></i></span></div>
-          <div><span class="wash__k">Pump pressure</span><span class="wash__v" data-w="press">0.0 bar</span><span class="wash__meter"><i data-w="pressbar"></i></span></div>
-          <div><span class="wash__k">Baskets washed</span><span class="wash__v" data-w="baskets">0</span></div>
-        </div>
-      </div>
-      <div class="wash__foot"><span class="wash__msg" data-w="msg" role="status" aria-live="off">Guard closed · Basket on shuttle · Ready</span>
-        <span class="wash__btns"><button class="wash__btn wash__btn--go" data-w="start">Start cycle</button><button class="wash__btn wash__btn--stop" data-w="stop">E-stop</button></span></div>
-    </div>
-    <div class="wash__cta"><p>Want your machine running like this?</p><a class="btn" href="/contact/">Book a demo</a></div>
-  </div>
-</section>
+
 <section class="block calcsec" id="savings">
   <div class="wrap calc" data-calc>
     <div class="calc__intro" data-reveal>
@@ -157,7 +148,8 @@
       <label class="calc__in" for="c-show-cost"><span class="calc__lbl">Freight, install and running, per show</span><output for="c-show-cost" data-out="c-show-cost">£4,000</output>
         <input type="range" id="c-show-cost" name="c-show-cost" min="1000" max="40000" step="500" value="4000" data-pre="£" data-unit=""></label>
       </fieldset>
-      <fieldset><legend>Operator training</legend>
+      <details class="calc__more" data-calc-more><summary>Operator training savings</summary>
+      <fieldset><legend class="sr-only">Operator training</legend>
       <label class="calc__in" for="c-ops"><span class="calc__lbl">New operators a year</span><output for="c-ops" data-out="c-ops">6</output>
         <input type="range" id="c-ops" name="c-ops" min="0" max="50" step="1" value="6" data-pre="" data-unit=""></label>
       <label class="calc__in" for="c-days"><span class="calc__lbl">Days of live-machine training the twin could replace</span><output for="c-days" data-out="c-days">2 days</output>
@@ -166,36 +158,17 @@
         <input type="range" id="c-hours" name="c-hours" min="0" max="8" step="1" value="2" data-pre="" data-unit=" h"></label>
       <label class="calc__in" for="c-rate"><span class="calc__lbl">Cost of one hour of lost production</span><output for="c-rate" data-out="c-rate">£400</output>
         <input type="range" id="c-rate" name="c-rate" min="50" max="5000" step="50" value="400" data-pre="£" data-unit=""></label>
-      </fieldset>
+      </fieldset></details>
       <p class="calc__fine">Estimate only. It counts show logistics and training downtime, and leaves out the cost of building the twin.</p>
     </div>
   </div>
 </section>
-<section class="block" id="samples">
-  <div class="wrap sechead"><div><h2 class="h2" data-reveal>Samples of our work.</h2><p class="body" data-reveal>Hover to preview. Click to watch on the Samples page.</p></div><div data-reveal><a class="link" href="/samples/">See all samples<svg class="chev" viewBox="0 0 8 14" aria-hidden="true"><path d="M1 1l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div></div>
-  <div class="wrap reels">
-    <a class="reel" href="/samples/#reel-pw600" data-reveal>
-      <video src="/video/reel-pw600.mp4" poster="/video/reel-pw600.jpg" muted loop playsinline preload="none" data-hover aria-hidden="true" tabindex="-1"></video>
-      <span class="reel__txt"><span class="reel__k">PW-600</span><span class="reel__h">PW-600 parts washer</span><span class="reel__p">Load, flood, spray, drain. The full cell in 17 seconds.</span></span>
-      <span class="reel__play" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M6 4l10 6-10 6z"/></svg></span>
-    </a>
-    <a class="reel" href="/samples/#reel-honeyline" data-reveal>
-      <video src="/video/reel-honeyline.mp4" poster="/video/reel-honeyline.jpg" muted loop playsinline preload="none" data-hover aria-hidden="true" tabindex="-1"></video>
-      <span class="reel__txt"><span class="reel__k">HoneyLine</span><span class="reel__h">HoneyLine packing line</span><span class="reel__p">Eight machines, from flat blank to wrapped pallet.</span></span>
-      <span class="reel__play" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M6 4l10 6-10 6z"/></svg></span>
-    </a>
-    <a class="reel" href="/samples/#reel-vr" data-reveal>
-      <video src="/video/reel-vr.mp4" poster="/video/reel-vr.jpg" muted loop playsinline preload="none" data-hover aria-hidden="true" tabindex="-1"></video>
-      <span class="reel__txt"><span class="reel__k">VR and training</span><span class="reel__h">VR and training</span><span class="reel__p">Walking the cell and learning the HMI before touching the machine.</span></span>
-      <span class="reel__play" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M6 4l10 6-10 6z"/></svg></span>
-    </a>
-  </div>
-</section>
+
 <section class="block closing">
   <div class="closing__glow" aria-hidden="true"></div>
   <div class="wrap center" data-reveal>
-    <h2 class="display">Got a show coming up?</h2>
-    <p class="body">Tell us about your machine and the date. We reply within one working day.</p>
+    <h2 class="display">Got a machine to show, sell or train on?</h2>
+    <p class="body">Tell us about your machine and when you need it. We reply within one working day, or email <a href="mailto:sales@ahylon.co.uk">sales@ahylon.co.uk</a>.</p>
     <div class="actions"><a class="btn" href="/contact/">Book a demo</a><a class="link" href="/process/">How it works<svg class="chev" viewBox="0 0 8 14" aria-hidden="true"><path d="M1 1l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
   </div>
 </section>

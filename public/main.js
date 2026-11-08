@@ -127,6 +127,8 @@
   document.addEventListener('focusin', (e) => { const r = e.target.closest('[data-reveal]'); if (r) r.classList.add('in'); });
 
   // ---------- savings calculator ----------
+  // operator-training sliders start folded on phones, open on wider screens
+  $$('[data-calc-more]').forEach((d) => { d.open = window.matchMedia('(min-width: 761px)').matches; });
   $$('[data-calc]').forEach((root) => {
     const inp = (id) => $('#' + id, root);
     const total = $('[data-total]', root);
