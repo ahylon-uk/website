@@ -128,12 +128,30 @@
 
   // ---------- savings calculator ----------
   // operator-training sliders start folded on phones, open on wider screens
-  $$('[data-calc-more]').forEach((d) => { d.open = window.matchMedia('(min-width: 761px)').matches; });
   $$('[data-calc]').forEach((root) => {
     const inp = (id) => $('#' + id, root);
-    const total = $('[data-total]', root);
-    const PRESETS = { 1: { 'c-shows': 1, 'c-show-cost': 3000, 'c-ops': 3 }, 3: { 'c-shows': 3, 'c-show-cost': 4000, 'c-ops': 6 }, 6: { 'c-shows': 6, 'c-show-cost': 6000, 'c-ops': 10 } };
-    let shown = 0, raf = 0;
+    const v = (id) => Number(inp(id).value);
+    const total = $('[data-total]', root), note = $('[data-note]', root), sum = $('[data-sum]', root), send = $('[data-send]', root);
+    const tabs = $$('[data-mode-btn]', root);
+    const PRESETS = {
+      s1: { 'c-shows': 1, 'c-show-cost': 3000 }, s3: { 'c-shows': 3, 'c-show-cost': 4000 }, s6: { 'c-shows': 6, 'c-show-cost': 6000 },
+      t3: { 'c-ops': 3, 'c-days': 2, 'c-hours': 2, 'c-rate': 300 }, t6: { 'c-ops': 6, 'c-days': 2, 'c-hours': 2, 'c-rate': 400 }, t12: { 'c-ops': 12, 'c-days': 3, 'c-hours': 3, 'c-rate': 500 },
+    };
+    const MODES = {
+      shows: {
+        value: () => v('c-shows') * v('c-show-cost'),
+        note: 'estimated saving a year on trade shows',
+        sum: () => `${v('c-shows')} ${v('c-shows') === 1 ? 'show' : 'shows'} × ${gbp(v('c-show-cost'))} each`,
+        query: () => ({ mode: 'shows', shows: v('c-shows'), showcost: v('c-show-cost') }),
+      },
+      train: {
+        value: () => v('c-ops') * v('c-days') * v('c-hours') * v('c-rate'),
+        note: 'estimated saving a year on operator training',
+        sum: () => `${v('c-ops')} ${v('c-ops') === 1 ? 'starter' : 'starters'} × ${v('c-days')} ${v('c-days') === 1 ? 'day' : 'days'} × ${v('c-hours')} h × ${gbp(v('c-rate'))} an hour`,
+        query: () => ({ mode: 'training', operators: v('c-ops'), days: v('c-days'), hours: v('c-hours'), rate: v('c-rate') }),
+      },
+    };
+    let mode = root.dataset.mode || 'shows', shown = 0, raf = 0;
     const tween = (to) => {
       cancelAnimationFrame(raf);
       if (reduce) { shown = to; total.textContent = Math.round(to).toLocaleString('en-GB'); return; }
@@ -141,29 +159,38 @@
       const step = (t) => { const p = Math.min(1, (t - t0) / 700), e = 1 - Math.pow(1 - p, 3); shown = from + (to - from) * e; total.textContent = Math.round(shown).toLocaleString('en-GB'); if (p < 1) raf = requestAnimationFrame(step); };
       raf = requestAnimationFrame(step);
     };
-    const calc = () => {
+    const calc = (animate = true) => {
       $$('input[type=range]', root).forEach((i) => { $(`[data-out="${i.id}"]`, root).textContent = i.dataset.pre + Number(i.value).toLocaleString('en-GB') + i.dataset.unit; });
-      const v = (id) => Number(inp(id).value);
-      const shows = v('c-shows') * v('c-show-cost');
-      const train = v('c-ops') * v('c-days') * v('c-hours') * v('c-rate');
-      const sum = shows + train, max = Math.max(shows, train, 1);
-      $('[data-part="shows"]', root).textContent = gbp(shows);
-      $('[data-part="train"]', root).textContent = gbp(train);
-      $('[data-bar="shows"]', root).style.width = (shows / max * 100) + '%';
-      $('[data-bar="train"]', root).style.width = (train / max * 100) + '%';
-      const q = new URLSearchParams({ estimate: Math.round(sum), shows: v('c-shows'), showcost: v('c-show-cost'), operators: v('c-ops'), days: v('c-days'), hours: v('c-hours'), rate: v('c-rate') });
-      const send = $('[data-send]', root); send.href = send.getAttribute('href').split('?')[0] + '?' + q;
-      tween(sum);
+      const m = MODES[mode], val = m.value();
+      note.textContent = m.note; sum.textContent = m.sum();
+      send.href = send.getAttribute('href').split('?')[0] + '?' + new URLSearchParams({ estimate: Math.round(val), ...m.query() });
+      if (animate) tween(val); else { shown = val; total.textContent = Math.round(val).toLocaleString('en-GB'); }
     };
-    root.addEventListener('input', () => { $$('[data-preset]', root).forEach((c) => c.classList.remove('is-on')); calc(); });
+    const setMode = (next, focus) => {
+      mode = next; root.dataset.mode = next;
+      tabs.forEach((t) => { const on = t.dataset.modeBtn === next; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; if (on && focus) t.focus(); });
+      $$('[data-pane]', root).forEach((p) => { p.hidden = p.dataset.pane !== next; });
+      $$('[data-presets]', root).forEach((g) => { g.hidden = g.dataset.presets !== next; });
+      calc();
+    };
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => setMode(t.dataset.modeBtn));
+      t.addEventListener('keydown', (e) => {   // arrow keys move between the two tabs
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        e.preventDefault(); setMode(tabs[(i + 1) % tabs.length].dataset.modeBtn, true);
+      });
+    });
+    root.addEventListener('input', (e) => {
+      const g = e.target.closest('[data-pane]'); if (g) $$(`[data-presets="${g.dataset.pane}"] .chip`, root).forEach((c) => c.classList.remove('is-on'));
+      calc();
+    });
     $$('[data-preset]', root).forEach((c) => c.addEventListener('click', () => {
       Object.entries(PRESETS[c.dataset.preset]).forEach(([id, val]) => { inp(id).value = val; });
-      $$('[data-preset]', root).forEach((x) => x.classList.toggle('is-on', x === c));
+      $$('.chip', c.parentElement).forEach((x) => x.classList.toggle('is-on', x === c));
       calc();
     }));
-    total.textContent = '0';
+    calc(false); total.textContent = '0'; shown = 0;  // fills the text and link; the number counts up when scrolled into view
     new IntersectionObserver(([e], o) => { if (e.isIntersecting) { calc(); o.disconnect(); } }, { threshold: 0.3 }).observe(root);
-    calc.call(null); // also fills the send link straight away
   });
 
   // ---------- PW-600 wash cycle ----------
@@ -485,7 +512,12 @@
   const prefill = () => {
   const qp = new URLSearchParams(location.search || location.hash.split('?')[1] || '');
   if (qp.get('estimate')) {
-    form.elements.message.value = `Please send me the savings estimate with a quote to compare.\n\nMy figures: ${qp.get('shows')} shows a year at £${Number(qp.get('showcost')).toLocaleString('en-GB')} each; ${qp.get('operators')} new operators a year, ${qp.get('days')} days of live-machine training each, ${qp.get('hours')} h lost per day at £${Number(qp.get('rate')).toLocaleString('en-GB')}/h.\nEstimated saving: £${Number(qp.get('estimate')).toLocaleString('en-GB')} a year.`;
+    const est = `£${Number(qp.get('estimate')).toLocaleString('en-GB')} a year`, money = (k) => '£' + Number(qp.get(k)).toLocaleString('en-GB');
+    form.elements.message.value = qp.get('mode') === 'training'
+      ? `Please send me the training estimate with a quote to compare.\n\nMy figures: ${qp.get('operators')} new starters a year, ${qp.get('days')} days each learning on the real line, ${qp.get('hours')} h of production lost per day at ${money('rate')} an hour.\nEstimated saving: ${est}.`
+      : qp.get('mode') === 'shows'
+        ? `Please send me the trade-show estimate with a quote to compare.\n\nMy figures: ${qp.get('shows')} shows a year at ${money('showcost')} each to take the machine.\nEstimated saving: ${est}.`
+        : `Please send me the savings estimate with a quote to compare.\n\nEstimated saving: ${est}.`;
   }
   };
   prefill(); addEventListener('hashchange', prefill);

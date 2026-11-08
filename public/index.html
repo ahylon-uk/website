@@ -127,39 +127,47 @@
 </section>
 
 <section class="block calcsec" id="savings">
-  <div class="wrap calc" data-calc>
+  <div class="wrap calc" data-calc data-mode="shows">
     <div class="calc__intro" data-reveal>
       <h2 class="h2">What could you save in a year?</h2>
-      <p class="body">Set the sliders to match your business, or start from a preset.</p>
-      <div class="calc__presets" role="group" aria-label="Presets">
-        <button class="chip" data-preset="1">1 show a year</button><button class="chip is-on" data-preset="3">3 shows a year</button><button class="chip" data-preset="6">6 shows a year</button>
+      <p class="body">Choose what you’d use your 3D machine for, then set the sliders to match your business.</p>
+      <div class="calc__switch" role="tablist" aria-label="Choose a saving to work out">
+        <button class="calc__tab" role="tab" id="ct-shows" aria-controls="cp-shows" aria-selected="true" data-mode-btn="shows">Trade shows</button>
+        <button class="calc__tab" role="tab" id="ct-train" aria-controls="cp-train" aria-selected="false" tabindex="-1" data-mode-btn="train">Operator training</button>
+      </div>
+      <div class="calc__presets" role="group" aria-label="Quick presets" data-presets="shows">
+        <button class="chip" data-preset="s1">1 show a year</button><button class="chip is-on" data-preset="s3">3 shows a year</button><button class="chip" data-preset="s6">6 shows a year</button>
+      </div>
+      <div class="calc__presets" role="group" aria-label="Quick presets" data-presets="train" hidden>
+        <button class="chip" data-preset="t3">3 new starters</button><button class="chip is-on" data-preset="t6">6 new starters</button><button class="chip" data-preset="t12">12 new starters</button>
       </div>
       <div class="calc__result">
         <p class="calc__total" aria-live="polite"><span class="calc__cur">£</span><span data-total>0</span></p>
-        <p class="calc__note">estimated saving per year. Example figures; your numbers will differ.</p>
-        <div class="calc__bars"><div><span>Shows</span><i data-bar="shows"></i><b data-part="shows">£0</b></div><div><span>Training</span><i data-bar="train"></i><b data-part="train">£0</b></div></div>
+        <p class="calc__note" data-note>estimated saving a year on trade shows</p>
+        <p class="calc__sum" data-sum></p>
         <a class="btn calc__send" href="/contact/" data-send>Send me this estimate</a>
       </div>
     </div>
     <div class="calc__panel" data-reveal>
-      <fieldset><legend>Trade shows</legend>
-      <label class="calc__in" for="c-shows"><span class="calc__lbl">Shows a year</span><output for="c-shows" data-out="c-shows">3</output>
-        <input type="range" id="c-shows" name="c-shows" min="1" max="20" step="1" value="3" data-pre="" data-unit=""></label>
-      <label class="calc__in" for="c-show-cost"><span class="calc__lbl">Freight, install and running, per show</span><output for="c-show-cost" data-out="c-show-cost">£4,000</output>
-        <input type="range" id="c-show-cost" name="c-show-cost" min="1000" max="40000" step="500" value="4000" data-pre="£" data-unit=""></label>
+      <fieldset class="calc__pane" id="cp-shows" role="tabpanel" aria-labelledby="ct-shows" data-pane="shows"><legend class="sr-only">Trade shows</legend>
+        <p class="calc__lead">Every show you send the real machine to costs freight, crating, a crane, install and someone to run it.</p>
+        <label class="calc__in" for="c-shows"><span class="calc__lbl">Shows a year</span><output for="c-shows" data-out="c-shows">3</output>
+          <input type="range" id="c-shows" name="c-shows" min="1" max="20" step="1" value="3" data-pre="" data-unit=""></label>
+        <label class="calc__in" for="c-show-cost"><span class="calc__lbl">Cost of taking the machine, per show</span><output for="c-show-cost" data-out="c-show-cost">£4,000</output>
+          <input type="range" id="c-show-cost" name="c-show-cost" min="1000" max="40000" step="500" value="4000" data-pre="£" data-unit=""></label>
       </fieldset>
-      <details class="calc__more" data-calc-more><summary>Operator training savings</summary>
-      <fieldset><legend class="sr-only">Operator training</legend>
-      <label class="calc__in" for="c-ops"><span class="calc__lbl">New operators a year</span><output for="c-ops" data-out="c-ops">6</output>
-        <input type="range" id="c-ops" name="c-ops" min="0" max="50" step="1" value="6" data-pre="" data-unit=""></label>
-      <label class="calc__in" for="c-days"><span class="calc__lbl">Days of live-machine training the twin could replace</span><output for="c-days" data-out="c-days">2 days</output>
-        <input type="range" id="c-days" name="c-days" min="0" max="15" step="1" value="2" data-pre="" data-unit=" days"></label>
-      <label class="calc__in" for="c-hours"><span class="calc__lbl">Production hours lost per training day</span><output for="c-hours" data-out="c-hours">2 h</output>
-        <input type="range" id="c-hours" name="c-hours" min="0" max="8" step="1" value="2" data-pre="" data-unit=" h"></label>
-      <label class="calc__in" for="c-rate"><span class="calc__lbl">Cost of one hour of lost production</span><output for="c-rate" data-out="c-rate">£400</output>
-        <input type="range" id="c-rate" name="c-rate" min="50" max="5000" step="50" value="400" data-pre="£" data-unit=""></label>
-      </fieldset></details>
-      <p class="calc__fine">Estimate only. It counts show logistics and training downtime, and leaves out the cost of building the twin.</p>
+      <fieldset class="calc__pane" id="cp-train" role="tabpanel" aria-labelledby="ct-train" data-pane="train" hidden><legend class="sr-only">Operator training</legend>
+        <p class="calc__lead">Every new starter who learns on the real line costs you production while they do.</p>
+        <label class="calc__in" for="c-ops"><span class="calc__lbl">New starters a year</span><output for="c-ops" data-out="c-ops">6</output>
+          <input type="range" id="c-ops" name="c-ops" min="1" max="50" step="1" value="6" data-pre="" data-unit=""></label>
+        <label class="calc__in" for="c-days"><span class="calc__lbl">Days each spends learning on the real line</span><output for="c-days" data-out="c-days">2 days</output>
+          <input type="range" id="c-days" name="c-days" min="1" max="15" step="1" value="2" data-pre="" data-unit=" days"></label>
+        <label class="calc__in" for="c-hours"><span class="calc__lbl">Production hours lost each of those days</span><output for="c-hours" data-out="c-hours">2 h</output>
+          <input type="range" id="c-hours" name="c-hours" min="1" max="8" step="1" value="2" data-pre="" data-unit=" h"></label>
+        <label class="calc__in" for="c-rate"><span class="calc__lbl">What one hour of lost production costs you</span><output for="c-rate" data-out="c-rate">£400</output>
+          <input type="range" id="c-rate" name="c-rate" min="50" max="5000" step="50" value="400" data-pre="£" data-unit=""></label>
+      </fieldset>
+      <p class="calc__fine">A rough guide, not a quote. It doesn’t include what the 3D model costs to build.</p>
     </div>
   </div>
 </section>
