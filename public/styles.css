@@ -1040,3 +1040,10 @@ body { font-family: var(--font); }
 @keyframes calcIn { from { opacity: 0; translate: 0 8px; } to { opacity: 1; translate: 0 0; } }
 @media (prefers-reduced-motion: reduce) { .calc__switch::before { transition: none; } .calc__pane { animation: none; } }
 @media (max-width: 760px) { .calc__switch { max-width: none; } .calc__tab { font-size: .88rem; padding: 12px 8px; } }
+
+/* VR card: second photo crossfades in on hover, or every 2s on touch screens */
+.pt__img--swap { position: relative; }
+.pt__img--swap .pt__swap { position: absolute; inset: 0; opacity: 0; transition: opacity .8s var(--ease), transform 1.2s var(--ease); }
+@media (hover: hover) { .pt:hover .pt__img--swap .pt__swap, .pt:focus-visible .pt__img--swap .pt__swap { opacity: 1; } }
+.pt__img--swap.is-alt .pt__swap { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .pt__img--swap .pt__swap { transition: none; } }

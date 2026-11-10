@@ -552,3 +552,15 @@
     }
   });
 })();
+
+// VR card: on touch screens (no hover), swap the two photos every 2 seconds while the card is on screen
+(() => {
+  const el = document.querySelector('.pt__img--swap');
+  if (!el || window.matchMedia('(hover: hover)').matches || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  let t = null;
+  const io = new IntersectionObserver(([e]) => {
+    if (e.isIntersecting && !t) t = setInterval(() => el.classList.toggle('is-alt'), 2000);
+    else if (!e.isIntersecting && t) { clearInterval(t); t = null; }
+  });
+  io.observe(el);
+})();
