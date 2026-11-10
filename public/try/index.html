@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Try the HoneyLine digital twin in your browser | Ahylon</title>
+<meta name="description" content="Run HoneyLine, an eight-machine honey-jar packing line, in your browser. Stop a machine, watch the line back up and open the line HMI.">
+<link rel="canonical" href="https://ahylon.co.uk/try/">
+<meta property="og:title" content="Try the HoneyLine digital twin in your browser | Ahylon">
+<meta property="og:description" content="Run HoneyLine, an eight-machine honey-jar packing line, in your browser. Stop a machine, watch the line back up and open the line HMI.">
+<meta property="og:image" content="https://ahylon.co.uk/video/reel-honeyline.jpg">
+<meta property="og:url" content="https://ahylon.co.uk/try/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Ahylon">
+<meta property="og:locale" content="en_GB">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="720">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0E0F12">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/img/icon-96.png" type="image/png" sizes="96x96">
+<link rel="icon" href="/img/icon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preload" as="image" href="/video/reel-honeyline.jpg" fetchpriority="high">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Unbounded:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<script>document.documentElement.classList.add('js')</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebPage", "@id": "https://ahylon.co.uk/try/#webpage", "url": "https://ahylon.co.uk/try/", "name": "Try the HoneyLine digital twin in your browser | Ahylon", "description": "Run HoneyLine, an eight-machine honey-jar packing line, in your browser. Stop a machine, watch the line back up and open the line HMI.", "isPartOf": {"@id": "https://ahylon.co.uk/#website"}, "about": {"@id": "https://ahylon.co.uk/#org"}, "publisher": {"@id": "https://ahylon.co.uk/#org"}, "inLanguage": "en-GB", "primaryImageOfPage": {"@type": "ImageObject", "url": "https://ahylon.co.uk/video/reel-honeyline.jpg", "width": 1280, "height": 720}, "breadcrumb": {"@id": "https://ahylon.co.uk/try/#breadcrumb"}}, {"@type": "BreadcrumbList", "@id": "https://ahylon.co.uk/try/#breadcrumb", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://ahylon.co.uk/"}, {"@type": "ListItem", "position": 2, "name": "Try it", "item": "https://ahylon.co.uk/try/"}]}]}</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="gnav">
+  <div class="gnav__in">
+    <a href="/" class="gnav__brand" aria-label="Ahylon home"><img src="/img/ahylon-logo.svg" alt="Ahylon" width="142" height="34"></a>
+    <button class="gnav__toggle" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span></span><span></span></button>
+    <nav class="gnav__links" id="menu" aria-label="Main">
+      <a href="/services/">Services</a>
+      <a href="/work/">Our work</a>
+      <a href="/samples/">Samples</a>
+      <a href="/try/" aria-current="page">Try it</a>
+      <a href="/process/">How it works</a>
+      <a href="/faq/">FAQ</a>
+      <a href="/contact/" class="gnav__cta">Book a demo</a>
+    </nav>
+  </div>
+</header>
+<main id="main">
+<section class="hero hero--plain hero--try">
+  <div class="wrap hero__copy">
+    <h1 class="hero__title"><span class="ln"><span>Run the HoneyLine</span></span><span class="ln"><span>yourself.</span></span></h1>
+    <p class="hero__intro">Eight machines, from case erector to stretch wrapper. Run it, stop a machine and watch the line back up, all in your browser.</p>
+  </div>
+</section>
+<section class="block try" aria-label="HoneyLine simulation">
+  <div class="wrap">
+    <div class="try__frame" id="try-frame">
+      <canvas class="try__canvas" id="try-canvas" tabindex="-1" aria-label="HoneyLine 3D simulation"></canvas>
+      <div class="try__cover" id="try-cover">
+        <img class="try__poster" src="/video/reel-honeyline.jpg" alt="The HoneyLine packing line, from the case erector to the stretch wrapper" width="1280" height="720">
+        <div class="try__start">
+          <button class="try__play" id="try-start" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg><span class="try__label">Click to start</span></button>
+          <p class="try__size" id="try-size">About 60 MB download</p>
+        </div>
+        <div class="try__load" id="try-load" hidden>
+          <p class="try__status" id="try-status" role="status" aria-live="polite">Loading the line…</p>
+          <div class="try__bar" role="progressbar" aria-label="Loading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="try-bar"><span id="try-bar-fill"></span></div>
+        </div>
+        <div class="try__err" id="try-err" role="alert" hidden>
+          <p class="try__err-t" id="try-err-t">The simulation isn’t available right now.</p>
+          <p class="try__err-b" id="try-err-b">Please try again later, or watch the HoneyLine film instead.</p>
+          <div class="actions"><button class="btn" type="button" id="try-retry">Try again</button><a class="link" href="/work/honeyline/">Watch the film<svg class="chev" viewBox="0 0 8 14" aria-hidden="true"><path d="M1 1l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+        </div>
+      </div>
+      <button class="try__fs" id="try-fs" type="button" aria-label="Full screen" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+      <button class="try__fs try__exit" id="try-exit" type="button" aria-label="Exit full screen" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="try__info">
+      <div class="try__controls">
+        <h2 class="try__h">Controls</h2>
+        <p class="try__keys" id="try-keys-desk"><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> move · mouse look · click machines and the HMI · <kbd>Esc</kbd> menu</p>
+        <p class="try__keys" id="try-keys-touch" hidden>left joystick move · drag right side to look · tap machines · buttons top-right</p>
+      </div>
+      <p class="try__note">Works best on a laptop or a recent phone. It’s a larger download, so Wi-Fi helps.</p>
+    </div>
+  </div>
+</section>
+<section class="block">
+  <div class="wrap" data-reveal><h2 class="h2">What to try.</h2></div>
+  <div class="wrap points">
+    <div data-reveal><h3>Stop a machine</h3><p>Stop the case sealer and watch cases queue back along the line.</p></div>
+    <div data-reveal><h3>Open the HMI</h3><p>Check rates, states and alarms for all eight machines from one screen.</p></div>
+    <div data-reveal><h3>Walk the line</h3><p>Follow a case from the erector to the wrapped pallet.</p></div>
+  </div>
+</section>
+<section class="block closing">
+  <div class="closing__glow" aria-hidden="true"></div>
+  <div class="wrap center" data-reveal>
+    <h2 class="display">Want one of your machine?</h2>
+    <p class="body">We build the same thing from your CAD, ready for your stand, your website and your sales team.</p>
+    <div class="actions"><a class="btn" href="/contact/">Book a demo</a><a class="link" href="/work/honeyline/">About HoneyLine<svg class="chev" viewBox="0 0 8 14" aria-hidden="true"><path d="M1 1l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+  </div>
+</section>
+</main>
+<footer class="foot">
+  <div class="wrap foot__top">
+    <a href="/" class="foot__brand" aria-label="Ahylon home"><img src="/img/ahylon-logo.svg" alt="Ahylon" width="200" height="48"></a>
+<p class="foot__tag">The machine, without the matter.</p>
+    <p class="foot__line">3D simulation, VR at your stand, promo films and operator training for UK machine builders.</p>
+  </div>
+  <div class="wrap foot__cols">
+    <div><h2>Explore</h2><a href="/services/">Services</a><a href="/work/">Our work</a><a href="/samples/">Samples</a><a href="/try/">Try it</a><a href="/process/">How it works</a></div>
+    <div><h2>Our work</h2><a href="/work/pw-600/">PW-600 parts washer</a><a href="/work/honeyline/">HoneyLine packing line</a><a href="/work/machining-cell/">Machining Cell</a><a href="https://www.youtube.com/@ahylon-uk" target="_blank" rel="noopener">YouTube channel</a></div>
+    <div><h2>Help</h2><a href="/faq/">FAQ</a><a href="/contact/">Book a demo</a></div>
+    <div><h2>Email</h2><a href="mailto:sales@ahylon.co.uk">sales@ahylon.co.uk</a><a href="mailto:tech@ahylon.co.uk">tech@ahylon.co.uk</a></div>
+  </div>
+  <p class="wrap foot__legal">© <span id="year">2026</span> Ahylon (formerly Virtualine). Made in the UK.</p>
+</footer>
+<dialog class="lightbox" id="lightbox" aria-label="Picture viewer"><button class="lightbox__close" aria-label="Close">×</button><button class="lightbox__nav lightbox__prev" aria-label="Previous picture">‹</button><button class="lightbox__nav lightbox__next" aria-label="Next picture">›</button><div class="lightbox__body"></div><p class="lightbox__cap"></p></dialog>
+<script src="/main.js" defer></script>
+<script src="/try/try.js" defer></script>
+</body>
+</html>
