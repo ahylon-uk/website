@@ -132,6 +132,7 @@
     };
     try {
       instance = await create(canvas, config, setProgress);
+      window.hlInstance = instance;
     } catch (e) {
       const m = String(e && e.message || e);
       const mem = /memory|out of memory|allocate/i.test(m);
