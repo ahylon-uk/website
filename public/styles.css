@@ -1081,3 +1081,6 @@ body { font-family: var(--font); }
   linear-gradient(0deg, var(--bg) 0%, rgba(15,16,19,.86) 26%, rgba(15,16,19,.2) 62%, rgba(15,16,19,.55) 100%),
   linear-gradient(90deg, rgba(15,16,19,.75) 0%, transparent 60%); }
 /* end QA fixes */
+
+.notfound .intro { margin-top: 20px; }
+.notfound .actions { justify-content: center; }

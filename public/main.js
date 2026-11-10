@@ -523,7 +523,7 @@
     form.elements.message.value = qp.get('mode') === 'training'
       ? `Please send me the training estimate with a quote to compare.\n\nMy figures: ${qp.get('operators')} new starters a year, ${qp.get('days')} days each learning on the real line, ${qp.get('hours')} h of production lost per day at ${money('rate')} an hour.\nEstimated saving: ${est}.`
       : qp.get('mode') === 'shows'
-        ? `Please send me the trade-show estimate with a quote to compare.\n\nMy figures: ${qp.get('shows')} shows a year at ${money('showcost')} each to take the machine.\nEstimated saving: ${est}.`
+        ? `Please send me the trade-show estimate with a quote to compare.\n\nMy figures: ${qp.get('shows')} ${qp.get('shows') === '1' ? 'show' : 'shows'} a year at ${money('showcost')} each to take the machine.\nEstimated saving: ${est}.`
         : `Please send me the savings estimate with a quote to compare.\n\nEstimated saving: ${est}.`;
   }
     const tick = { training: 'Operator training', shows: 'VR at your stand' }[qp.get('mode')];
@@ -560,7 +560,7 @@
       form.innerHTML = '<div class="sent__icon" aria-hidden="true"></div><h3>Demo requested.</h3><p>It’s with ' + to + '. We’ll reply within one working day.</p>';
     } catch (err) {
       const mail = form.elements.topic && form.elements.topic.value === 'tech' ? 'tech@ahylon.co.uk' : 'sales@ahylon.co.uk';
-      setStatus(err.message + ' You can also email ' + mail + '.', 'err');
+      setStatus((err.message && !/fetch|network|load/i.test(err.message) ? err.message : 'Sorry, your message didn’t send.') + ' Please try again or email ' + mail + '.', 'err');
       btn.disabled = false; btn.textContent = 'Request my demo';
     }
   });
