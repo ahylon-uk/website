@@ -134,8 +134,8 @@
     const total = $('[data-total]', root), note = $('[data-note]', root), sum = $('[data-sum]', root), send = $('[data-send]', root);
     const tabs = $$('[data-mode-btn]', root);
     const PRESETS = {
-      s1: { 'c-shows': 1, 'c-show-cost': 3000 }, s3: { 'c-shows': 3, 'c-show-cost': 4000 }, s6: { 'c-shows': 6, 'c-show-cost': 6000 },
-      t3: { 'c-ops': 3, 'c-days': 2, 'c-hours': 2, 'c-rate': 300 }, t6: { 'c-ops': 6, 'c-days': 2, 'c-hours': 2, 'c-rate': 400 }, t12: { 'c-ops': 12, 'c-days': 3, 'c-hours': 3, 'c-rate': 500 },
+      s1: { 'c-shows': 1 }, s3: { 'c-shows': 3 }, s6: { 'c-shows': 6 },
+      t3: { 'c-ops': 3 }, t6: { 'c-ops': 6 }, t12: { 'c-ops': 12 },
     };
     const MODES = {
       shows: {
@@ -181,7 +181,7 @@
       });
     });
     root.addEventListener('input', (e) => {
-      const g = e.target.closest('[data-pane]'); if (g) $$(`[data-presets="${g.dataset.pane}"] .chip`, root).forEach((c) => c.classList.remove('is-on'));
+      const g = e.target.closest('[data-pane]'); if (g) $$(`[data-presets="${g.dataset.pane}"] .chip`, root).forEach((c) => c.classList.toggle('is-on', Object.entries(PRESETS[c.dataset.preset]).every(([id, val]) => v(id) === val)));
       calc();
     });
     $$('[data-preset]', root).forEach((c) => c.addEventListener('click', () => {
@@ -189,8 +189,8 @@
       $$('.chip', c.parentElement).forEach((x) => x.classList.toggle('is-on', x === c));
       calc();
     }));
-    calc(false); total.textContent = '0'; shown = 0;  // fills the text and link; the number counts up when scrolled into view
-    new IntersectionObserver(([e], o) => { if (e.isIntersecting) { calc(); o.disconnect(); } }, { threshold: 0.3 }).observe(root);
+    calc(false);  // the real figure is in the page straight away; it counts up from zero the first time it scrolls into view
+    new IntersectionObserver(([e], o) => { if (e.isIntersecting) { if (!reduce) { shown = 0; total.textContent = '0'; } calc(); o.disconnect(); } }, { threshold: 0.3 }).observe(root);
   });
 
   // ---------- PW-600 wash cycle ----------
@@ -290,7 +290,7 @@
       k('alarm').classList.toggle('is-fault', fault); foot.classList.toggle('is-fault', fault);
       mode.textContent = fault ? 'FAULT' : 'AUTO RUN'; mode.classList.toggle('is-fault', fault);
     };
-    const reset = () => { run = Array(N).fill(true); buf = Array(N - 1).fill(2); count = Array(N).fill(0); hist = []; ticks = 0; upTicks = 0; tiles.forEach((t) => t.setAttribute('aria-pressed', 'false')); draw(Array(N).fill('running')); };
+    const reset = () => { run = Array(N).fill(true); buf = Array(N - 1).fill(2); count = Array.from({ length: N }, (_, i) => 2 * (N - 1 - i)); hist = []; ticks = 0; upTicks = 0; tiles.forEach((t) => t.setAttribute('aria-pressed', 'false')); draw(Array(N).fill('running')); };
     const step = () => {
       const state = Array(N).fill('running'); let made = 0;
       for (let i = N - 1; i >= 0; i--) {
@@ -301,7 +301,7 @@
         count[i]++; if (i === N - 1) made++;
       }
       ticks++; if (state.every((s) => s === 'running')) upTicks++;
-      hist.push(made); if (hist.length > 30) hist.shift();
+      hist.push(made); if (hist.length > 8) hist.shift();
       draw(state);
     };
     tiles.forEach((t, i) => t.addEventListener('click', () => { run[i] = !run[i]; t.setAttribute('aria-pressed', String(!run[i])); step(); }));
@@ -362,18 +362,20 @@
     const v = $('.pl__video', root), screen = $('.pl__screen', root), seek = $('.pl__seek', root), t = $('.pl__t', root);
     const pp = $('.pl__pp', root), big = $('.pl__big', root), items = $$('.pl__item', root);
     const fmt = (s) => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+    const showT = () => { t.textContent = fmt(v.currentTime || 0) + (v.duration && isFinite(v.duration) ? ' / ' + fmt(v.duration) : ''); };
     const sync = () => { screen.classList.toggle('is-playing', !v.paused); pp.setAttribute('aria-label', v.paused ? 'Play' : 'Pause'); };
     const toggle = () => v.paused ? v.play().catch(() => {}) : v.pause();
     pp.addEventListener('click', toggle); big.addEventListener('click', toggle); v.addEventListener('click', toggle);
     v.addEventListener('play', sync); v.addEventListener('pause', sync); v.addEventListener('ended', sync);
-    v.addEventListener('timeupdate', () => { if (v.duration) { seek.value = v.currentTime / v.duration * 1000; t.textContent = fmt(v.currentTime); } });
+    v.addEventListener('loadedmetadata', showT); if (v.readyState >= 1) showT();
+    v.addEventListener('timeupdate', () => { if (v.duration) { seek.value = v.currentTime / v.duration * 1000; showT(); } });
     seek.addEventListener('input', () => { if (v.duration) v.currentTime = seek.value / 1000 * v.duration; });
     $('.pl__fs', root).addEventListener('click', () => { const f = v.requestFullscreen || v.webkitEnterFullscreen; if (f) f.call(v); });
     const choose = (b, play) => {
       items.forEach((x) => { x.classList.toggle('is-on', x === b); x.setAttribute('aria-pressed', String(x === b)); });
       v.src = b.dataset.src; v.poster = b.dataset.poster; v.setAttribute('aria-label', b.dataset.title + ' film');
       $('.pl__title', root).textContent = b.dataset.title; $('.pl__desc', root).textContent = b.dataset.desc;
-      big.setAttribute('aria-label', 'Play ' + b.dataset.title); seek.value = 0; t.textContent = '0:00';
+      big.setAttribute('aria-label', 'Play ' + b.dataset.title); seek.value = 0; showT();
       if (play) v.play().catch(() => {});
       sync();
     };
@@ -455,7 +457,12 @@
     root.append(end);
     return end;
   };
+  const pauseOthers = (keep) => {
+    $$('.film.is-on').forEach((r) => { if (r !== keep && r._player && r._player.pauseVideo) r._player.pauseVideo(); });
+    $$('video').forEach((v) => { if (!v.paused && !v.closest('.film')) { v.pause(); v.dataset.filmPaused = '1'; } });
+  };
   const playFilm = (root) => {
+    pauseOthers(root);
     if (root.classList.contains('is-on')) return;
     root.classList.add('is-on', 'is-loading');
     const frame = document.createElement('div');
@@ -472,7 +479,7 @@
           onReady: (e) => { root.classList.remove('is-loading'); e.target.playVideo(); $('iframe', frame).title = (root.dataset.name || '') + ' film'; },
           onStateChange: (e) => {
             if (e.data === YT.PlayerState.ENDED) { end.hidden = false; $('.btn', end).focus({ preventScroll: true }); }
-            if (e.data === YT.PlayerState.PLAYING) end.hidden = true;
+            if (e.data === YT.PlayerState.PLAYING) { end.hidden = true; pauseOthers(root); }
           },
         },
       });
@@ -500,7 +507,7 @@
     }));
     $('.filmbox__close', fbox).addEventListener('click', () => fbox.close());
     fbox.addEventListener('click', (e) => { if (e.target === fbox) fbox.close(); });
-    fbox.addEventListener('close', () => { const r = $('.film', body); if (r && r._player) r._player.destroy(); body.replaceChildren(); });
+    fbox.addEventListener('close', () => { const r = $('.film', body); if (r && r._player) r._player.destroy(); body.replaceChildren(); $$('video[data-film-paused]').forEach((v) => { delete v.dataset.filmPaused; if (!document.documentElement.classList.contains('bg-paused')) v.play().catch(() => {}); }); });
   }
 
   // ---------- contact form ----------
@@ -519,6 +526,8 @@
         ? `Please send me the trade-show estimate with a quote to compare.\n\nMy figures: ${qp.get('shows')} shows a year at ${money('showcost')} each to take the machine.\nEstimated saving: ${est}.`
         : `Please send me the savings estimate with a quote to compare.\n\nEstimated saving: ${est}.`;
   }
+    const tick = { training: 'Operator training', shows: 'VR at your stand' }[qp.get('mode')];
+  if (tick) $$('input[name=for]', form).forEach((c) => { if (c.value === tick) c.checked = true; });
   };
   prefill(); addEventListener('hashchange', prefill);
   const check = (n) => {
@@ -532,7 +541,10 @@
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const bad = ['name', 'email', 'message'].filter(check);
-    if (bad.length) { setStatus('Add your name, a valid email and a message.', 'err'); form.elements[bad[0]].focus(); return; }
+    if (bad.length) {
+      const msg = bad.length === 1 && bad[0] === 'email' ? (form.elements.email.value.trim() ? 'Enter a valid email address, like name@company.co.uk.' : 'Add your email so we can reply.') : bad.length === 1 && bad[0] === 'name' ? 'Add your name.' : bad.length === 1 && bad[0] === 'message' ? 'Add a short message.' : 'Add your name, a valid email and a message.';
+      setStatus(msg, 'err'); form.elements[bad[0]].focus(); return;
+    }
     btn.disabled = true; btn.textContent = 'Sending…'; setStatus('');
     try {
       const fd = new FormData(form);
@@ -547,7 +559,8 @@
       form.classList.add('sent');
       form.innerHTML = '<div class="sent__icon" aria-hidden="true"></div><h3>Demo requested.</h3><p>It’s with ' + to + '. We’ll reply within one working day.</p>';
     } catch (err) {
-      setStatus(err.message + ' You can also email sales@ahylon.co.uk.', 'err');
+      const mail = form.elements.topic && form.elements.topic.value === 'tech' ? 'tech@ahylon.co.uk' : 'sales@ahylon.co.uk';
+      setStatus(err.message + ' You can also email ' + mail + '.', 'err');
       btn.disabled = false; btn.textContent = 'Request my demo';
     }
   });

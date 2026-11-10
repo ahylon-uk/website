@@ -954,10 +954,10 @@ html,body{overflow-x:clip}
 .link__play { width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.55); display: grid; place-items: center; transition: background .3s var(--ease), border-color .3s var(--ease); }
 .link__play svg { width: 13px; fill: currentColor; margin-left: 2px; }
 .link--film:hover .link__play { background: var(--volt); border-color: var(--volt); color: #111214; }
-.filmbox { width: min(1200px, 100vw - 32px); max-width: none; padding: 0; border: 0; background: transparent; color: var(--fg); overflow: visible; }
+.filmbox { width: min(1200px, 100vw - 32px, (100dvh - 150px) * 16 / 9); max-width: none; margin: auto; overflow: visible; padding: 0; border: 0; background: transparent; color: var(--fg); overflow: visible; }
 .filmbox::backdrop { background: rgba(6,7,9,.88); backdrop-filter: blur(6px); }
 .filmbox[open] { animation: vt-in .45s var(--ease) both; }
-.filmbox__close { position: absolute; right: 0; top: -54px; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--panel); color: var(--fg); font-size: 1.6rem; line-height: 1; cursor: pointer; }
+.filmbox__close { position: absolute; right: 0; top: -54px; z-index: 3; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--panel); color: var(--fg); font-size: 1.6rem; line-height: 1; cursor: pointer; }
 .filmbox__close:hover { border-color: var(--volt); color: var(--volt); }
 @media (prefers-reduced-motion: reduce) { .film__play { animation: none; } .film__start img { transition: none; } }
 .film { container-type: inline-size; }
@@ -1047,3 +1047,37 @@ body { font-family: var(--font); }
 @media (hover: hover) { .pt:hover .pt__img--swap .pt__swap, .pt:focus-visible .pt__img--swap .pt__swap { opacity: 1; } }
 .pt__img--swap.is-alt .pt__swap { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .pt__img--swap .pt__swap { transition: none; } }
+
+@media (max-height: 520px) { .filmbox__close { top: 10px; right: 10px; } }
+
+/* =================================================================
+   QA fixes (2026-11): media crops, orphan grid items, overlay contrast
+   ================================================================= */
+
+/* 1. services feature media: show the full 16:9 frame so burnt-in captions are not cropped */
+.feat__img img, .feat__img--vid { aspect-ratio: 16 / 9; }
+.feat__img--vid video { display: block; }
+
+/* 2. .points with exactly 4 items: 2x2 instead of 3 + 1 orphan (single column <=760 as before) */
+@media (min-width: 761px) {
+  .points:has(> :nth-child(4):last-child) { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* 3. /work/ cases: with exactly 3 cards, the last becomes a full-width banner (desktop only) */
+@media (min-width: 1025px) {
+  .cases:has(> .case:nth-child(3):last-child) > .case:last-child { grid-column: 1 / -1; min-height: 460px; }
+}
+
+/* 4. overlays: keep burnt-in video/poster text from fighting the site's own titles */
+.reel::after { background:
+  linear-gradient(180deg, rgba(15,16,19,.85) 0%, rgba(15,16,19,.45) 12%, rgba(15,16,19,0) 22%),
+  linear-gradient(0deg, rgba(15,16,19,.95) 0%, rgba(15,16,19,.7) 25%, rgba(15,16,19,0) 60%); }
+.case::after { background:
+  linear-gradient(180deg, rgba(15,16,19,.45) 0%, rgba(15,16,19,0) 20%),
+  linear-gradient(0deg, rgba(15,16,19,.97) 22%, rgba(15,16,19,.3) 75%); }
+.nextup__card::after { background: linear-gradient(90deg, rgba(15,16,19,.94) 0%, rgba(15,16,19,.6) 40%, rgba(15,16,19,.12) 75%); }
+.hero__shade { background:
+  radial-gradient(70% 55% at 0% 100%, rgba(15,16,19,.6) 0%, rgba(15,16,19,0) 100%),
+  linear-gradient(0deg, var(--bg) 0%, rgba(15,16,19,.86) 26%, rgba(15,16,19,.2) 62%, rgba(15,16,19,.55) 100%),
+  linear-gradient(90deg, rgba(15,16,19,.75) 0%, transparent 60%); }
+/* end QA fixes */
