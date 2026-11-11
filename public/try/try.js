@@ -5,14 +5,21 @@
 
   // ---------- build files: change names here if the build output changes ----------
   // Each file lists candidate names, tried in order; the first one the server has is used.
+  // Phones and tablets get a lighter build (smaller textures, simpler lighting, less memory) so the browser doesn't
+  // close the tab. ?mobile=1 forces it on a desktop for testing, ?mobile=0 forces the full build.
+  const q = new URLSearchParams(location.search).get('mobile');
+  const MOBILE = q === '1' || (q !== '0' && (matchMedia('(pointer: coarse)').matches || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)));
+  const N = MOBILE ? 'honeyline-m' : 'honeyline';
+  const ext = (n) => [n + '.gz', n + '.unityweb', n + '.br', n];
   const BUILD = {
-    base: '/try/build/',
-    loader: ['honeyline.loader.js'],
-    data: ['honeyline.data.gz', 'honeyline.data.unityweb', 'honeyline.data.br', 'honeyline.data'],
-    framework: ['honeyline.framework.js.gz', 'honeyline.framework.js.unityweb', 'honeyline.framework.js.br', 'honeyline.framework.js'],
-    code: ['honeyline.wasm.gz', 'honeyline.wasm.unityweb', 'honeyline.wasm.br', 'honeyline.wasm'],
-    streamingAssetsUrl: '/try/build/StreamingAssets',
-    approxMB: 60,            // shown on the start button until the real size is known
+    base: MOBILE ? '/try/build-m/' : '/try/build/',
+    loader: [N + '.loader.js'],
+    data: ext(N + '.data'),
+    framework: ext(N + '.framework.js'),
+    code: ext(N + '.wasm'),
+    streamingAssetsUrl: MOBILE ? '/try/build-m/StreamingAssets' : '/try/build/StreamingAssets',
+    approxMB: MOBILE ? 35 : 50,            // shown on the start button until the real size is known
     companyName: 'Ahylon',
     productName: 'HoneyLine',
     productVersion: '1.0',
@@ -124,7 +131,7 @@
       companyName: BUILD.companyName,
       productName: BUILD.productName,
       productVersion: BUILD.productVersion,
-      devicePixelRatio: Math.min(window.devicePixelRatio || 1, coarse.matches ? 1.5 : 2),
+      devicePixelRatio: MOBILE ? 1 : Math.min(window.devicePixelRatio || 1, 2),
       showBanner: (msg, type) => {
         if (type === 'error') fail('Something went wrong.', 'The simulation stopped while loading. Please try again.', msg);
         else console.warn('[try]', msg);
@@ -133,6 +140,7 @@
     try {
       instance = await create(canvas, config, setProgress);
       window.hlInstance = instance;
+      if (MOBILE) { try { instance.SendMessage('Web controls', 'SetTouch', '1'); } catch (e) { console.warn('[try]', e); } }
     } catch (e) {
       const m = String(e && e.message || e);
       const mem = /memory|out of memory|allocate/i.test(m);
