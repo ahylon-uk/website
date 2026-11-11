@@ -25,6 +25,22 @@
     productVersion: '1.0',
   };
 
+  // ---------- phone picture quality: High (sharp, full resolution) or Standard (lighter, for older phones) ----------
+  const QKEY = 'hl-quality';
+  const defaultQuality = () => {
+    const dm = navigator.deviceMemory;
+    if (dm) return dm >= 6 ? 'high' : 'standard';
+    const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (ios) return Math.max(screen.width, screen.height) * (window.devicePixelRatio || 1) >= 2532 ? 'high' : 'standard';
+    return 'standard';
+  };
+  let quality = 'high';
+  try { quality = localStorage.getItem(QKEY) || defaultQuality(); } catch (e) { quality = defaultQuality(); }
+  const dprFor = (q) => {
+    const d = window.devicePixelRatio || 1;
+    return MOBILE ? Math.min(d, q === 'high' ? 2 : 1.5) : Math.min(d, 2);
+  };
+
   const $ = (id) => document.getElementById(id);
   const frame = $('try-frame'), canvas = $('try-canvas'), cover = $('try-cover');
   const startBtn = $('try-start'), sizeEl = $('try-size'), label = startBtn && startBtn.querySelector('.try__label');
@@ -33,6 +49,28 @@
   const fsBtn = $('try-fs'), exitBtn = $('try-exit');
   const keysDesk = $('try-keys-desk'), keysTouch = $('try-keys-touch');
   if (!frame || !canvas || !startBtn) return;
+
+  // quality switch, shown on phones and tablets only; works before and during the run
+  if (MOBILE && keysTouch && keysTouch.parentElement) {
+    const row = document.createElement('p');
+    row.className = 'try__keys try__quality';
+    row.innerHTML = 'Picture <span class="try__qset" role="group" aria-label="Picture quality">'
+      + '<button type="button" data-q="high">High</button><button type="button" data-q="standard">Standard</button></span>'
+      + ' <span class="try__qhint">Standard is lighter for older phones</span>';
+    keysTouch.parentElement.appendChild(row);
+    const btns = row.querySelectorAll('button');
+    const show = () => btns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.q === quality)));
+    show();
+    btns.forEach((b) => b.addEventListener('click', () => {
+      quality = b.dataset.q; show();
+      try { localStorage.setItem(QKEY, quality); } catch (e) { /* private mode */ }
+      if (instance) {
+        try { if (instance.Module) instance.Module.devicePixelRatio = dprFor(quality); } catch (e) { /* older loader */ }
+        try { instance.SendMessage('Virtuline URP', 'SetQuality', quality); } catch (e) { console.warn('[try]', e); }
+        window.dispatchEvent(new Event('resize'));
+      }
+    }));
+  }
 
   // ---------- touch or mouse: right label and controls guide ----------
   const coarse = matchMedia('(pointer: coarse)');
@@ -131,7 +169,7 @@
       companyName: BUILD.companyName,
       productName: BUILD.productName,
       productVersion: BUILD.productVersion,
-      devicePixelRatio: MOBILE ? 1 : Math.min(window.devicePixelRatio || 1, 2),
+      devicePixelRatio: dprFor(quality),
       showBanner: (msg, type) => {
         if (type === 'error') fail('Something went wrong.', 'The simulation stopped while loading. Please try again.', msg);
         else console.warn('[try]', msg);
@@ -140,7 +178,10 @@
     try {
       instance = await create(canvas, config, setProgress);
       window.hlInstance = instance;
-      if (MOBILE) { try { instance.SendMessage('Web controls', 'SetTouch', '1'); } catch (e) { console.warn('[try]', e); } }
+      if (MOBILE) {
+        try { instance.SendMessage('Web controls', 'SetTouch', '1'); } catch (e) { console.warn('[try]', e); }
+        try { instance.SendMessage('Virtuline URP', 'SetQuality', quality); } catch (e) { console.warn('[try]', e); }
+      }
     } catch (e) {
       const m = String(e && e.message || e);
       const mem = /memory|out of memory|allocate/i.test(m);
