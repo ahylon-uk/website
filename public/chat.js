@@ -42,7 +42,7 @@
 
   // the chat brings its own stylesheet (versioned, so browsers never pair new code with old styles)
   // and stays invisible until that stylesheet has loaded
-  const VERSION = '10';
+  const VERSION = '11';
   const css = document.createElement('link');
   css.rel = 'stylesheet'; css.href = `/chat.css?v=${VERSION}`;
   document.head.appendChild(css);
@@ -661,12 +661,19 @@
   const [dDrop, dPool, dRing1, dRing2] = drip.children;
   function zap() {
     if (reduceMotion || root.hidden || state.open || document.hidden || bot.mode !== 'dock' || !nudge.hidden) return;
+    // right arm reaches down under his body and shakes there
     const hand = fabWrap.querySelector('.bot-hand-r');
     anim(hand, [
-      { translate: '0px 0px' }, { translate: '1px 5px', offset: .2 }, { translate: '-1px 1px', offset: .4 },
-      { translate: '1px 6px', offset: .6 }, { translate: '0px 2px', offset: .8 }, { translate: '0px 0px' },
-    ], { duration: 520, easing: 'ease-in-out' });
-    const h = fabWrap.querySelector('.bot-hand-r').getBoundingClientRect(), f = fab.getBoundingClientRect();
+      { translate: '0px 0px' },
+      { translate: '-15px 17px', offset: .22 },
+      { translate: '-12px 18px', offset: .32 }, { translate: '-18px 17px', offset: .42 },
+      { translate: '-12px 18px', offset: .52 }, { translate: '-18px 17px', offset: .62 },
+      { translate: '-15px 17px', offset: .72 },
+      { translate: '0px 0px' },
+    ], { duration: 1150, easing: 'ease-in-out' });
+    // where that hand is while shaking (svg spot about 41,56 of 64)
+    const br = buddy.getBoundingClientRect(), f = fab.getBoundingClientRect();
+    const h = { left: br.left + br.width * (41 / 64) - 3, top: br.top + br.height * (56 / 64) - 3, width: 6, height: 6 };
     const x = h.left + h.width / 2, floor = Math.min(innerHeight - 5, f.bottom + 7);
     drip.style.left = `${x}px`; drip.style.top = `${floor}px`;
     const fall = floor - (h.top + h.height);
@@ -676,7 +683,7 @@
       { transform: `translate(-50%, ${-fall * .4}px) scale(.8, 1.4)`, opacity: 1, offset: .6 },
       { transform: 'translate(-50%, -2px) scale(1.3, .5)', opacity: 1, offset: .95 },
       { transform: 'translate(-50%, 0) scale(1.6, .2)', opacity: 0 },
-    ], { duration: 420, delay: 260, easing: 'cubic-bezier(.55,0,1,.45)', fill: 'backwards' });
+    ], { duration: 380, delay: 480, easing: 'cubic-bezier(.55,0,1,.45)', fill: 'backwards' });
     // splat: the pool spreads, wobbles like liquid, then soaks away
     anim(dPool, [
       { transform: 'translate(-50%, -50%) scale(0, 0)', opacity: 1, borderRadius: '50%' },
@@ -685,12 +692,12 @@
       { transform: 'translate(-50%, -50%) scale(1.04, 1)', opacity: .95, borderRadius: '48% 52% 50% 50% / 55% 45% 55% 45%', offset: .5 },
       { transform: 'translate(-50%, -50%) scale(1, .95)', opacity: .8, borderRadius: '50%', offset: .75 },
       { transform: 'translate(-50%, -50%) scale(.6, .5)', opacity: 0, borderRadius: '50%' },
-    ], { duration: 2300, delay: 670, easing: 'ease-out', fill: 'backwards' });
+    ], { duration: 2300, delay: 850, easing: 'ease-out', fill: 'backwards' });
     // ripples run out across the puddle
     [dRing1, dRing2].forEach((r, i) => anim(r, [
       { transform: 'translate(-50%, -50%) scale(.2)', opacity: .9 },
       { transform: 'translate(-50%, -50%) scale(1.9)', opacity: 0 },
-    ], { duration: 1100, delay: 690 + i * 260, easing: 'cubic-bezier(.2,.6,.3,1)', fill: 'backwards' }));
+    ], { duration: 1100, delay: 870 + i * 260, easing: 'cubic-bezier(.2,.6,.3,1)', fill: 'backwards' }));
   }
   if (!reduceMotion) setInterval(zap, 3000);
 
