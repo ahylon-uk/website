@@ -42,7 +42,7 @@
 
   // the chat brings its own stylesheet (versioned, so browsers never pair new code with old styles)
   // and stays invisible until that stylesheet has loaded
-  const VERSION = '12';
+  const VERSION = '13';
   const css = document.createElement('link');
   css.rel = 'stylesheet'; css.href = `/chat.css?v=${VERSION}`;
   document.head.appendChild(css);
@@ -684,14 +684,21 @@
 
     later(() => {
       if (!canFountain()) return;
-      // stream from his hand, up a little, then arcing down-left to the floor
-      const br = buddy.getBoundingClientRect();
-      const x0 = br.left + br.width * (41 / 64), y0 = br.top + br.height * (57 / 64);
-      const y1 = innerHeight - 7, x1 = Math.max(24, x0 - 78);
-      const d = `M ${x0} ${y0} Q ${x0 - 34} ${y0 - 26} ${x1} ${y1}`;
-      fPaths.forEach((el) => el.setAttribute('d', d));
+      // stream comes straight down out of the bottom of his body, then curves left to the floor.
+      // Its top is re-drawn every frame so it stays attached while he bobs.
+      const y1 = innerHeight - 7;
+      const startPt = () => { const r = buddy.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height * (51 / 64)]; };
+      const [sx0] = startPt(), x1 = Math.max(24, sx0 - 72);
+      const draw = () => {
+        const [x0, y0] = startPt(), drop = Math.max(8, y1 - y0);
+        const d = `M ${x0} ${y0} C ${x0} ${y0 + drop * .75}, ${x1 + 26} ${y1}, ${x1} ${y1}`;
+        fPaths.forEach((el) => el.setAttribute('d', d));
+      };
+      draw();
+      const flowEnd = Date.now() + FLOW;
+      (function follow() { if (Date.now() < flowEnd) { draw(); requestAnimationFrame(follow); } })();
       fPaths.forEach((el) => anim(el, [
-        { strokeDashoffset: 1, opacity: 1 },          // shoots out
+        { strokeDashoffset: 1, opacity: 1 },          // pours out
         { strokeDashoffset: 0, opacity: 1, offset: .35 },
         { strokeDashoffset: 0, opacity: 1, offset: .72 },   // flows
         { strokeDashoffset: -1, opacity: .9 },        // tail falls in
