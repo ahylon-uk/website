@@ -12,5 +12,11 @@
     { "pattern": "api.virtualine.co.uk", "custom_domain": true },
     { "pattern": "api.virtualline.co.uk", "custom_domain": true }
   ],
+  // "Ask Ahylon" chat: at most 12 messages a minute from one visitor (src/chat.js).
+  // The Claude API key is a secret, set once with:  npx wrangler secret put ANTHROPIC_API_KEY
+  "ratelimits": [
+    { "name": "CHAT_LIMIT", "namespace_id": "1001", "simple": { "limit": 12, "period": 60 } }
+  ],
+  "vars": { "CHAT_MODEL": "claude-haiku-5-5" },
   "observability": { "enabled": true }
 }

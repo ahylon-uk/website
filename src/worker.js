@@ -1,3 +1,4 @@
+// Ahylon website API: POST /chat is the "Ask Ahylon" assistant (src/chat.js); any other POST is the contact form.
 // Ahylon contact form API (Cloudflare Worker at https://api.ahylon.co.uk,
 // also reachable at the old https://api.virtualine.co.uk and https://api.virtualline.co.uk)
 // The website itself is hosted on GitHub Pages. The form POSTs here, and this Worker
@@ -8,6 +9,7 @@
 //   Settings > Domains & Routes:      custom domains api.ahylon.co.uk, api.virtualine.co.uk and api.virtualline.co.uk
 
 import { EmailMessage } from "cloudflare:email";
+import { handleChat } from "./chat.js";
 
 const TO = "virtualline35@gmail.com";
 const FROM = "website@ahylon.co.uk";
@@ -32,7 +34,7 @@ const TOPICS = {
 };
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const origin = request.headers.get("origin") || "";
     const cors = {
       "access-control-allow-origin": ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0],
@@ -44,6 +46,11 @@ export default {
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
     if (request.method !== "POST") return json({ ok: false, error: "Method not allowed." }, 405, cors);
     if (origin && !ALLOWED_ORIGINS.includes(origin)) return json({ ok: false, error: "Forbidden." }, 403, cors);
+    if (new URL(request.url).pathname === "/chat") {
+      // the assistant spends API credit, so only the website may call it
+      if (!ALLOWED_ORIGINS.includes(origin)) return json({ ok: false, error: "Forbidden." }, 403, cors);
+      return handleChat(request, env, ctx, cors, (m) => sendMail(env, m));
+    }
     return handleContact(request, env, cors);
   },
 };
@@ -109,6 +116,12 @@ async function handleContact(request, env, cors) {
     return json({ ok: false, error: "Sorry, we couldn't send your message right now." }, 502, cors);
   }
   return json({ ok: true }, 200, cors);
+}
+
+// Used by the chat assistant to pass a lead to the inbox
+async function sendMail(env, { subject, body, replyName, replyEmail }) {
+  const raw = buildMime({ from: `${FROM_NAME} <${FROM}>`, to: TO, replyTo: `${quoteName(replyName)} <${replyEmail}>`, subject, body });
+  await env.CONTACT_EMAIL.send(new EmailMessage(FROM, TO, raw));
 }
 
 function buildMime({ from, to, replyTo, subject, body }) {
