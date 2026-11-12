@@ -217,18 +217,3 @@ html.askai-holding, html.askai-holding * { cursor: none !important; }
 .askai__nudge { margin-bottom: 4px; }
 .askai__nudge .askai__nudge-t { white-space: pre-wrap; }
 .askai__ghost { visibility: hidden; }
-
-/* his white fountain and the puddle it makes */
-.askai-fountain { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 95; pointer-events: none; overflow: visible; }
-.askai-fountain path { fill: none; stroke-linecap: round; stroke-dasharray: 1 1; stroke-dashoffset: 1; opacity: 0; }
-.askai-fountain__glow { stroke: rgba(198,255,61,.35); stroke-width: 9; filter: blur(3px); }
-.askai-fountain__stream { stroke: #F4F5F2; stroke-width: 3.6; }
-.askai-fountain__core { stroke: #FFFFFF; stroke-width: 1.2; }
-.askai-drip { position: fixed; left: 0; top: 0; width: 0; height: 0; z-index: 89; pointer-events: none; }
-.askai-drip i { position: absolute; left: 0; top: 0; display: block; opacity: 0; }
-.askai-drip__pool { width: 70px; height: 10px;
-  background: radial-gradient(ellipse at 40% 35%, #FFFFFF 0 10%, #F4F5F2 30%, rgba(244,245,242,.75) 62%, rgba(244,245,242,.12) 100%);
-  box-shadow: 0 0 10px rgba(244,245,242,.45), 0 0 26px rgba(198,255,61,.3); }
-.askai-drip__ring { width: 70px; height: 11px; border: 1.5px solid rgba(244,245,242,.75); border-radius: 50%; }
-.askai-drip__spl { width: 4px; height: 4px; border-radius: 50%; background: #F4F5F2; box-shadow: 0 0 6px rgba(244,245,242,.7); }
-@media (prefers-reduced-motion: reduce) { .askai-drip, .askai-fountain { display: none; } }

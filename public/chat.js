@@ -42,7 +42,7 @@
 
   // the chat brings its own stylesheet (versioned, so browsers never pair new code with old styles)
   // and stays invisible until that stylesheet has loaded
-  const VERSION = '13';
+  const VERSION = '8';
   const css = document.createElement('link');
   css.rel = 'stylesheet'; css.href = `/chat.css?v=${VERSION}`;
   document.head.appendChild(css);
@@ -650,89 +650,6 @@
       if (Date.now() - bot.lastMove < 15000 && Date.now() - bot.lastOut > 12000 && Math.random() < .5) trick();
     }, 20000);
   }
-
-
-  // ---------- his fountain: arm down under him, shake for 2 s, then a white stream arcs out
-  // down and to the left and lands as a puddle at the bottom of the screen. Rests 3 s, repeats. ----------
-  const NS = 'http://www.w3.org/2000/svg';
-  const fx = document.createElementNS(NS, 'svg');
-  fx.setAttribute('class', 'askai-fountain'); fx.setAttribute('aria-hidden', 'true');
-  fx.innerHTML = '<path class="askai-fountain__glow" pathLength="1"/><path class="askai-fountain__stream" pathLength="1"/><path class="askai-fountain__core" pathLength="1"/>';
-  document.body.appendChild(fx);
-  const fPaths = Array.from(fx.querySelectorAll('path'));
-  const drip = document.createElement('div');
-  drip.className = 'askai-drip';
-  drip.setAttribute('aria-hidden', 'true');
-  drip.innerHTML = '<i class="askai-drip__pool"></i><i class="askai-drip__ring"></i><i class="askai-drip__ring"></i><i class="askai-drip__spl"></i><i class="askai-drip__spl"></i><i class="askai-drip__spl"></i>';
-  document.body.appendChild(drip);
-  const [dPool, dRing1, dRing2, ...splash] = drip.children;
-  const SHAKE = 2000, FLOW = 1300, REST = 3000;
-
-  function canFountain() {
-    return !reduceMotion && !root.hidden && !state.open && !document.hidden && bot.mode === 'dock' && nudge.hidden;
-  }
-  function fountain() {
-    if (!canFountain()) { later(fountain, 1500); return; }
-    const hand = fabWrap.querySelector('.bot-hand-r');
-    const total = 300 + SHAKE + FLOW + 400;
-    const p = (ms) => ms / total;
-    // arm down under him, shake for 2 s, hold while the fountain flows, then back up
-    const frames = [{ translate: '0px 0px', offset: 0 }, { translate: '-15px 17px', offset: p(300) }];
-    for (let t = 300 + 100, i = 0; t < 300 + SHAKE; t += 100, i++) frames.push({ translate: i % 2 ? '-12px 18px' : '-18px 16px', offset: p(t) });
-    frames.push({ translate: '-15px 17px', offset: p(300 + SHAKE) }, { translate: '-15px 18px', offset: p(300 + SHAKE + FLOW) }, { translate: '0px 0px', offset: 1 });
-    anim(hand, frames, { duration: total, easing: 'linear' });
-
-    later(() => {
-      if (!canFountain()) return;
-      // stream shoots out of the bottom of his body in a fountain arc, down-left to the floor.
-      // Its top is re-drawn every frame so it stays attached while he bobs.
-      const y1 = innerHeight - 7;
-      const startPt = () => { const r = buddy.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height * (51 / 64)]; };
-      const [sx0] = startPt(), x1 = Math.max(24, sx0 - 72);
-      const draw = () => {
-        const [x0, y0] = startPt(), drop = Math.max(8, y1 - y0);
-        const d = `M ${x0} ${y0} Q ${x0 - 40} ${y0 - 16} ${x1} ${y1}`;   // fountain arc out of his base
-        fPaths.forEach((el) => el.setAttribute('d', d));
-      };
-      draw();
-      const flowEnd = Date.now() + FLOW;
-      (function follow() { if (Date.now() < flowEnd) { draw(); requestAnimationFrame(follow); } })();
-      fPaths.forEach((el) => anim(el, [
-        { strokeDashoffset: 1, opacity: 1 },          // pours out
-        { strokeDashoffset: 0, opacity: 1, offset: .35 },
-        { strokeDashoffset: 0, opacity: 1, offset: .72 },   // flows
-        { strokeDashoffset: -1, opacity: .9 },        // tail falls in
-      ], { duration: FLOW, easing: 'cubic-bezier(.3,.6,.4,1)', fill: 'backwards' }));
-      // the puddle where it lands
-      drip.style.left = `${x1}px`; drip.style.top = `${y1}px`;
-      const hit = FLOW * .33;
-      anim(dPool, [
-        { transform: 'translate(-50%, -50%) scale(0, 0)', opacity: 1, borderRadius: '50%' },
-        { transform: 'translate(-50%, -50%) scale(.7, .8)', opacity: 1, borderRadius: '46% 54% 52% 48% / 60% 40% 60% 40%', offset: .2 },
-        { transform: 'translate(-50%, -50%) scale(1.1, 1.15)', opacity: 1, borderRadius: '55% 45% 47% 53% / 40% 60% 40% 60%', offset: .42 },
-        { transform: 'translate(-50%, -50%) scale(.96, .92)', opacity: .95, borderRadius: '48% 52% 50% 50% / 55% 45% 55% 45%', offset: .58 },
-        { transform: 'translate(-50%, -50%) scale(1, .95)', opacity: .8, borderRadius: '50%', offset: .78 },
-        { transform: 'translate(-50%, -50%) scale(.55, .45)', opacity: 0, borderRadius: '50%' },
-      ], { duration: 2600, delay: hit, easing: 'ease-out', fill: 'backwards' });
-      [dRing1, dRing2].forEach((r, i) => anim(r, [
-        { transform: 'translate(-50%, -50%) scale(.2)', opacity: .9 },
-        { transform: 'translate(-50%, -50%) scale(2)', opacity: 0 },
-      ], { duration: 1100, delay: hit + 150 + i * 320, easing: 'cubic-bezier(.2,.6,.3,1)', fill: 'backwards' }));
-      // little splash droplets
-      splash.forEach((sp, i) => {
-        const dx = (i - 1) * 16 + (Math.random() * 6 - 3), up = 10 + Math.random() * 10;
-        anim(sp, [
-          { transform: 'translate(-50%, -50%)', opacity: 1 },
-          { transform: `translate(calc(-50% + ${dx * .6}px), calc(-50% - ${up}px))`, opacity: 1, offset: .45 },
-          { transform: `translate(calc(-50% + ${dx}px), -50%)`, opacity: 0 },
-        ], { duration: 520, delay: hit + 40 + i * 50, easing: 'ease-out', fill: 'backwards' });
-      });
-    }, 300 + SHAKE);
-
-    later(fountain, total + 600 + REST);
-  }
-  if (!reduceMotion) later(fountain, 3000);
-
 
   // opening the chat brings her home straight away
   fab.addEventListener('click', () => { if (bot.mode !== 'dock') goHome(true); });
