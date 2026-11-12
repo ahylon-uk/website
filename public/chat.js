@@ -1,4 +1,4 @@
-/* "Ask Ahylon" chat assistant.
+/* Aysh, the "Ask Ahylon" chat assistant.
    Talks to the Cloudflare Worker at https://api.ahylon.co.uk/chat (src/chat.js), which holds the API key.
    The conversation is kept for this browser tab only (sessionStorage), so it follows the visitor between pages. */
 (() => {
@@ -7,7 +7,7 @@
   const KEY = 'ahylon-chat-v1';
   const MAX_LEN = 1200;
   const STARTERS = ['What do you build?', 'How does VR at a show work?', 'What do you need from me?', 'How much does it cost?'];
-  const GREETING = "Hi, are you OK? I'm the Ahylon assistant. Ask me anything about digital twins, VR at your stand, films or operator training, or tell me about your machine.";
+  const GREETING = "Hi, I'm Aysh, Ahylon's assistant. Are you OK? Ask me anything about 3D copies of machines, VR at your stand, films or operator training, or tell me about your machine.";
   const NUDGE_KEY = 'ahylon-chat-nudged';
   const NUDGE_DELAY = 6000;      // "are you OK?" after 6 s, once per visit
   const FACT_FIRST = 30000;      // first "did you know?" 30 s after landing
@@ -59,7 +59,7 @@
 
   // the chat brings its own stylesheet (versioned, so browsers never pair new code with old styles)
   // and stays invisible until that stylesheet has loaded
-  const VERSION = '3';
+  const VERSION = '4';
   const css = document.createElement('link');
   css.rel = 'stylesheet'; css.href = `/chat.css?v=${VERSION}`;
   document.head.appendChild(css);
@@ -76,14 +76,14 @@
       <p><strong class="askai__nudge-h"></strong><span class="askai__nudge-t"></span></p>
       <div class="askai__nudge-btns"><button type="button" class="askai__nudge-yes"></button><button type="button" class="askai__nudge-no"></button></div>
     </div>
-    <button class="askai__hide" type="button" aria-label="Hide the Ahylon assistant" title="Hide">×</button>
-    <button class="askai__fab" type="button" aria-expanded="false" aria-controls="askai-panel">
-      <span class="askai__bot">${robot()}</span><span class="askai__fab-txt">Ask Ahylon</span>
+    <button class="askai__hide" type="button" aria-label="Hide Aysh" title="Hide Aysh">×</button>
+    <button class="askai__fab" type="button" aria-expanded="false" aria-controls="askai-panel" aria-label="Chat with Aysh, the Ahylon assistant">
+      <span class="askai__bot">${robot()}</span><span class="askai__fab-txt">Ask Aysh</span>
     </button>
     <section class="askai__panel" id="askai-panel" role="dialog" aria-modal="false" aria-labelledby="askai-title" hidden>
       <header class="askai__head">
         <span class="askai__orb">${robot('askbot--sm')}</span>
-        <div><h2 id="askai-title">Ask Ahylon</h2><p>AI assistant</p></div>
+        <div><h2 id="askai-title">Aysh</h2><p>Ahylon AI assistant</p></div>
         <button class="askai__icon askai__reset" type="button" aria-label="Start a new chat" title="New chat">
           <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10a6 6 0 1 0 2-4.47M4 3v3.5h3.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
@@ -268,7 +268,7 @@
   const checkIn = () => {
     if (ss.get(NUDGE_KEY) === '1' || state.messages.length) return;
     if (showBubble({
-      h: 'Hi there, are you OK?', t: 'Need a hand finding anything, or got a question about your machine?',
+      h: "Hi, I'm Aysh. Are you OK?", t: 'Need a hand finding anything, or got a question about your machine?',
       yes: 'Yes, help me', no: "I'm fine, thanks",
       onyes: () => setOpen(true), onno: () => {},
     })) ss.set(NUDGE_KEY, '1');
@@ -286,7 +286,7 @@
     if (state.open || !nudge.hidden || busy || document.hidden) return;
     const f = nextFact();
     showBubble({
-      h: 'Did you know?', t: f.t, ttl: FACT_SHOW,
+      h: 'Aysh: did you know?', t: f.t, ttl: FACT_SHOW,
       yes: f.href ? 'Show me' : 'Tell me more', no: 'Not now',
       onyes: () => { if (f.href) { location.href = f.href; } else { setOpen(true); ask(f.ask); } },
       onno: () => {},
