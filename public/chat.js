@@ -36,30 +36,13 @@
   const state = Object.assign({ open: false, messages: [] }, store.load());
   const persist = () => store.save({ open: state.open, messages: state.messages.slice(-30) });
 
-  // ---------- markup: a small original Ahylon robot. Its chest badge is the dotted "O" of the logo,
-  // and brand dots flow round it like the logo intro. ----------
-  const ring = Array.from({ length: 10 }, (_, i) => {
-    const a = (i / 10) * Math.PI * 2, r = 29;
-    return `<circle cx="${(32 + r * Math.cos(a)).toFixed(1)}" cy="${(33 + r * Math.sin(a)).toFixed(1)}" r="${(i % 3 ? 1.1 : 1.7)}"/>`;
-  }).join('');
-  const badge = [[32,47],[29.5,49],[34.5,49],[32,51],[29.5,53],[34.5,53],[32,55]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1"/>`).join('');
-  const robot = (cls = '') => `<svg class="askbot ${cls}" viewBox="0 0 64 64" aria-hidden="true">
-      <g class="askbot__ring">${ring}</g>
-      <g class="askbot__body">
-        <line x1="32" y1="11" x2="32" y2="5" class="askbot__stroke"/><circle cx="32" cy="4.5" r="2.6" class="askbot__tip"/>
-        <rect x="12" y="11" width="40" height="29" rx="12" class="askbot__head"/>
-        <rect x="9" y="21" width="4" height="9" rx="2" class="askbot__ear"/><rect x="51" y="21" width="4" height="9" rx="2" class="askbot__ear"/>
-        <rect x="17" y="17" width="30" height="16" rx="8" class="askbot__visor"/>
-        <g class="askbot__eyes"><circle cx="25.5" cy="25" r="3.2"/><circle cx="38.5" cy="25" r="3.2"/></g>
-        <path d="M28 29.5q4 2.6 8 0" class="askbot__smile"/>
-        <rect x="21" y="42" width="22" height="17" rx="7" class="askbot__head"/>
-        <g class="askbot__badge">${badge}</g>
-      </g>
-    </svg>`;
+  // ---------- markup: the robot. Her head is the dotted "O" of the Ahylon logo come to life. ----------
+  const BOT_SVG = '<svg class="bot" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><ellipse class="bot-shadow" cx="32" cy="59.5" rx="11" ry="1.6" fill="#1A1D22"/><g class="bot-body"><line class="bot-antenna" x1="32" y1="9.5" x2="32" y2="5" stroke="#9CA0A6" stroke-width="1.2" stroke-linecap="round"/><circle class="bot-antenna-tip" cx="32" cy="4" r="1.7" fill="#C6FF3D"/><g class="bot-voice-rings" fill="none" stroke="#C6FF3D" stroke-width="1.1"><circle class="bot-vr bot-vr1" cx="32" cy="30" r="22.6"/><circle class="bot-vr bot-vr2" cx="32" cy="30" r="22.6"/></g><circle class="bot-core" cx="32" cy="30" r="21.4" fill="#14161A"/><g class="bot-ring" fill="#F4F5F2"><g class="bot-dots bot-d0"><circle cx="37.6" cy="13.8" r="1.09"/><circle cx="41.4" cy="13.8" r="0.93"/><circle cx="35.8" cy="17.0" r="1.36"/><circle cx="39.5" cy="17.0" r="1.26"/><circle cx="30.1" cy="20.3" r="1.52"/><circle cx="33.9" cy="20.3" r="1.52"/><circle cx="50.8" cy="30.0" r="0.93"/><circle cx="48.9" cy="33.2" r="1.09"/><circle cx="17.0" cy="36.5" r="1.16"/><circle cx="47.0" cy="36.5" r="1.16"/><circle cx="15.1" cy="39.7" r="0.83"/><circle cx="41.4" cy="39.7" r="1.36"/><circle cx="45.1" cy="39.7" r="1.16"/><circle cx="35.8" cy="43.0" r="1.36"/><circle cx="39.5" cy="43.0" r="1.26"/><circle cx="33.9" cy="46.2" r="1.16"/><circle cx="37.6" cy="46.2" r="1.09"/><circle cx="32.0" cy="49.5" r="0.83"/></g><g class="bot-dots bot-d1"><circle cx="17.0" cy="17.0" r="0.78"/><circle cx="43.2" cy="17.0" r="1.09"/><circle cx="15.1" cy="20.3" r="0.83"/><circle cx="37.6" cy="20.3" r="1.47"/><circle cx="41.4" cy="20.3" r="1.36"/><circle cx="50.8" cy="36.5" r="0.78"/><circle cx="18.9" cy="39.7" r="1.16"/><circle cx="22.6" cy="39.7" r="1.36"/><circle cx="48.9" cy="39.7" r="0.83"/><circle cx="17.0" cy="43.0" r="0.78"/><circle cx="20.8" cy="43.0" r="1.09"/><circle cx="43.2" cy="43.0" r="1.09"/><circle cx="47.0" cy="43.0" r="0.78"/><circle cx="41.4" cy="46.2" r="0.93"/><circle cx="35.8" cy="49.5" r="0.78"/></g><g class="bot-dots bot-d2"><circle cx="28.2" cy="10.5" r="0.78"/><circle cx="32.0" cy="10.5" r="0.83"/><circle cx="22.6" cy="13.8" r="0.93"/><circle cx="26.4" cy="13.8" r="1.09"/><circle cx="20.8" cy="17.0" r="1.09"/><circle cx="24.5" cy="17.0" r="1.26"/><circle cx="47.0" cy="17.0" r="0.78"/><circle cx="18.9" cy="20.3" r="1.16"/><circle cx="22.6" cy="20.3" r="1.36"/><circle cx="45.1" cy="20.3" r="1.16"/><circle cx="48.9" cy="20.3" r="0.83"/><circle cx="13.2" cy="23.5" r="0.78"/><circle cx="17.0" cy="23.5" r="1.16"/><circle cx="47.0" cy="23.5" r="1.16"/><circle cx="15.1" cy="26.8" r="1.09"/><circle cx="26.4" cy="39.7" r="1.47"/><circle cx="30.1" cy="39.7" r="1.52"/><circle cx="24.5" cy="43.0" r="1.26"/><circle cx="22.6" cy="46.2" r="0.93"/></g><g class="bot-dots bot-d3"><circle cx="35.8" cy="10.5" r="0.78"/><circle cx="30.1" cy="13.8" r="1.16"/><circle cx="33.9" cy="13.8" r="1.16"/><circle cx="28.2" cy="17.0" r="1.36"/><circle cx="32.0" cy="17.0" r="1.39"/><circle cx="26.4" cy="20.3" r="1.47"/><circle cx="50.8" cy="23.5" r="0.78"/><circle cx="48.9" cy="26.8" r="1.09"/><circle cx="13.2" cy="30.0" r="0.93"/><circle cx="17.0" cy="30.0" r="1.26"/><circle cx="47.0" cy="30.0" r="1.26"/><circle cx="15.1" cy="33.2" r="1.09"/><circle cx="13.2" cy="36.5" r="0.78"/><circle cx="33.9" cy="39.7" r="1.52"/><circle cx="37.6" cy="39.7" r="1.47"/><circle cx="28.2" cy="43.0" r="1.36"/><circle cx="32.0" cy="43.0" r="1.39"/><circle cx="26.4" cy="46.2" r="1.09"/><circle cx="30.1" cy="46.2" r="1.16"/><circle cx="28.2" cy="49.5" r="0.78"/></g></g><rect class="bot-visor" x="17.8" y="23.2" width="28.4" height="16.6" rx="8.3" fill="#0E0F12" stroke="#1A1D22" stroke-width="1"/><g class="bot-look"><g class="bot-eyes" fill="#C6FF3D"><ellipse class="bot-eye" cx="26.4" cy="30.6" rx="2.7" ry="3.3"/><ellipse class="bot-eye" cx="37.6" cy="30.6" rx="2.7" ry="3.3"/><path class="bot-lash" d="M24.3 28.6l-1.5-.9M39.7 28.6l1.5-.9" stroke="#C6FF3D" stroke-width=".9" stroke-linecap="round"/></g><rect class="bot-mouth" x="30" y="35.3" width="4" height="1.4" rx=".7" fill="#F4F5F2"/><ellipse class="bot-talk" cx="32" cy="36.2" rx="3.4" ry="2.3" fill="#C6FF3D"/></g></g><g class="bot-hands" fill="#9CA0A6"><circle class="bot-hand bot-hand-l" cx="7.5" cy="39" r="2.5"/><circle class="bot-hand bot-hand-r" cx="56.5" cy="39" r="2.5"/></g></svg>';
+  const robot = (cls = '') => `<span class="bot-wrap ${cls}">${BOT_SVG}</span>`;
 
   // the chat brings its own stylesheet (versioned, so browsers never pair new code with old styles)
   // and stays invisible until that stylesheet has loaded
-  const VERSION = '4';
+  const VERSION = '5';
   const css = document.createElement('link');
   css.rel = 'stylesheet'; css.href = `/chat.css?v=${VERSION}`;
   document.head.appendChild(css);
@@ -82,7 +65,7 @@
     </button>
     <section class="askai__panel" id="askai-panel" role="dialog" aria-modal="false" aria-labelledby="askai-title" hidden>
       <header class="askai__head">
-        <span class="askai__orb">${robot('askbot--sm')}</span>
+        <span class="askai__orb">${robot()}</span>
         <div><h2 id="askai-title">Aysh</h2><p>Ahylon AI assistant</p></div>
         <button class="askai__icon askai__reset" type="button" aria-label="Start a new chat" title="New chat">
           <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10a6 6 0 1 0 2-4.47M4 3v3.5h3.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -187,6 +170,7 @@
     input.value = ''; grow();
     state.messages.push({ role: 'user', content: text }); persist();
     bubble('user', text);
+    talking(true);
     const el = bubble('assistant', '', 'is-typing');
     el.innerHTML = '<span class="askai__dots" aria-label="Typing"><i></i><i></i><i></i></span>';
     scroll();
@@ -235,6 +219,7 @@
     }
     if (lead) bubble('assistant', 'Sent to the team ✓', 'is-sent');
     persist(); scroll();
+    talking(false);
     busy = false; send.disabled = false;
     input.focus();
   }
@@ -251,6 +236,7 @@
     nYes.textContent = yes; nNo.textContent = no; onYes = onyes; onNo = onno;
     nudge.hidden = false;
     root.classList.remove('is-nudging'); void root.offsetWidth; root.classList.add('is-nudging');
+    wave(2400);
     clearTimeout(autoHide);
     if (ttl) { const tick = () => { if (hovered) autoHide = setTimeout(tick, 2000); else hideBubble(); }; autoHide = setTimeout(tick, ttl); }
     return true;
@@ -283,7 +269,7 @@
     return FACTS[i];
   };
   const dropFact = () => {
-    if (state.open || !nudge.hidden || busy || document.hidden) return;
+    if (state.open || !nudge.hidden || busy || document.hidden || bot.mode !== 'dock') return;
     const f = nextFact();
     showBubble({
       h: 'Aysh: did you know?', t: f.t, ttl: FACT_SHOW,
@@ -303,6 +289,116 @@
     setTimeout(checkIn, NUDGE_DELAY);
     setTimeout(function loop() { dropFact(); setTimeout(loop, FACT_EVERY); }, FACT_FIRST);
   }
+
+
+  // ---------- her personality ----------
+  // Eyes follow the cursor, the nearest hand reaches to grab it, she hides her face when you hover
+  // (a bit shy), hops for attention when ignored, and now and then peeks in from the edge of the
+  // screen and runs back to her corner if you come near. She gets braver after a few peeks.
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const buddy = $('.askai__bot'), fabWrap = buddy.querySelector('.bot-wrap'), headWrap = $('.askai__orb .bot-wrap');
+  const parts = (w) => ({ look: w.querySelector('.bot-look'), l: w.querySelector('.bot-hand-l'), r: w.querySelector('.bot-hand-r') });
+  const fp = parts(fabWrap);
+  const bot = { mode: 'dock', peeks: 0, px: -1, py: -1, lastMove: Date.now(), raf: 0, timers: [] };
+  const later = (fn, ms) => { const t = setTimeout(fn, ms); bot.timers.push(t); return t; };
+
+  let talkStart = 0, talkT = 0;
+  function talking(on) {
+    clearTimeout(talkT);
+    if (on) { talkStart = Date.now(); headWrap.classList.add('is-talking'); return; }
+    talkT = setTimeout(() => headWrap.classList.remove('is-talking'), Math.max(0, 1500 - (Date.now() - talkStart)));
+  }
+  function wave(ms) { fabWrap.classList.add('is-waving'); later(() => fabWrap.classList.remove('is-waving'), ms); }
+
+  // eyes and hands follow the pointer
+  function track() {
+    bot.raf = 0;
+    if (bot.px < 0 || root.hidden) return;
+    const r = buddy.getBoundingClientRect();
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    const dx = bot.px - cx, dy = bot.py - cy, d = Math.hypot(dx, dy) || 1;
+    const k = Math.min(1, d / 140);
+    if (!root.classList.contains('is-shy')) fp.look.style.translate = `${(dx / d) * 2.4 * k}px ${(dy / d) * 1.8 * k}px`;
+    // reach for the cursor when it's close, with the hand on that side
+    const reach = !state.open && bot.mode !== 'run' && d < 240 && d > r.width * 0.45;
+    const amt = reach ? Math.min(15, 4 + (240 - d) / 12) : 0;
+    const near = dx < 0 ? fp.l : fp.r, far = near === fp.l ? fp.r : fp.l;
+    near.style.translate = `${(dx / d) * amt}px ${(dy / d) * amt}px`;
+    far.style.translate = '0px 0px';
+    // out peeking and you come close: shy, so she runs home (unless she's got brave)
+    if (bot.mode === 'peek' && d < 170) {
+      if (bot.peeks > 3) { bot.mode = 'brave'; wave(1600); later(() => goHome(false), 2600); }
+      else runAway();
+    }
+  }
+  addEventListener('pointermove', (e) => {
+    bot.px = e.clientX; bot.py = e.clientY; bot.lastMove = Date.now();
+    if (!bot.raf) bot.raf = requestAnimationFrame(track);
+  }, { passive: true });
+
+  // hover: covers her face, then peeks out at you
+  let shyT = 0;
+  fab.addEventListener('pointerenter', (e) => {
+    if (e.pointerType !== 'mouse' || bot.mode !== 'dock') return;
+    root.classList.add('is-shy'); fp.look.style.translate = '0px 1.6px';
+    clearTimeout(shyT); shyT = setTimeout(() => root.classList.remove('is-shy'), 900);
+  });
+  fab.addEventListener('pointerleave', () => { clearTimeout(shyT); root.classList.remove('is-shy'); });
+
+  // move her around the screen (translate is relative to her spot on the chat button)
+  const dockCentre = () => {
+    const r = fab.getBoundingClientRect(), b = 52;
+    return [r.left + 4 + b / 2, r.top + r.height / 2 - 9];
+  };
+  function moveTo(x, y, rot, scale, how) {
+    const [cx, cy] = dockCentre();
+    buddy.style.transition = how;
+    buddy.style.translate = `${Math.round(x - cx)}px ${Math.round(y - cy)}px`;
+    buddy.style.rotate = rot + 'deg';
+    buddy.style.scale = String(scale);
+  }
+  function goHome(fast) {
+    bot.mode = 'home';
+    buddy.style.transition = fast
+      ? 'translate .5s cubic-bezier(.6,-.35,.7,1), rotate .3s, scale .4s'
+      : 'translate 1.1s cubic-bezier(.45,0,.2,1), rotate .6s, scale .6s';
+    buddy.style.translate = '0px 0px'; buddy.style.rotate = '0deg'; buddy.style.scale = '1';
+    later(() => { bot.mode = 'dock'; root.classList.remove('is-roaming', 'is-shy'); }, fast ? 520 : 1150);
+  }
+  function runAway() {
+    bot.mode = 'run';
+    root.classList.add('is-shy');                 // squints and ducks
+    later(() => goHome(true), 220);               // tiny startled pause, then zooms back
+  }
+  function peek() {
+    if (reduceMotion || state.open || root.hidden || document.hidden || busy || bot.mode !== 'dock' || !nudge.hidden) return;
+    const vw = innerWidth, vh = innerHeight, size = 52 * 1.6;
+    const side = vw < 560 ? 'right' : (Math.random() < .5 ? 'left' : 'right');
+    const x = side === 'left' ? size * 0.18 : vw - size * 0.18;
+    const y = vh * (0.28 + Math.random() * 0.34);
+    bot.mode = 'peek'; bot.peeks++;
+    root.classList.add('is-roaming');
+    // slip off-screen first, then lean in from the edge
+    moveTo(side === 'left' ? -size : vw + size, y, side === 'left' ? 30 : -30, 1.6, 'none');
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      moveTo(x, y, side === 'left' ? 22 : -22, 1.6, 'translate .9s cubic-bezier(.2,.9,.3,1.2), rotate .9s');
+    }));
+    later(() => { if (bot.mode === 'peek') wave(1600); }, 950);
+    later(() => { if (bot.mode === 'peek') goHome(false); }, 6200);
+  }
+  // hop for attention when she's been ignored a while
+  function hey() {
+    if (reduceMotion || state.open || root.hidden || bot.mode !== 'dock' || !nudge.hidden) return;
+    if (Date.now() - bot.lastMove < 12000) return;
+    root.classList.remove('is-hey'); void root.offsetWidth; root.classList.add('is-hey');
+    later(() => root.classList.remove('is-hey'), 1300);
+  }
+  if (!reduceMotion && ss.get(HIDE_KEY) !== '1') {
+    later(function loop() { peek(); later(loop, 38000 + Math.random() * 32000); }, 16000 + Math.random() * 8000);
+    setInterval(hey, 15000);
+  }
+  // opening the chat brings her home straight away
+  fab.addEventListener('click', () => { if (bot.mode !== 'dock') goHome(true); });
 
   if (state.open) setOpen(true, false);
 })();

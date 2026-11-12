@@ -4,8 +4,7 @@
 .askai__fab:hover { border-color: var(--volt); box-shadow: 0 0 0 5px rgba(198,255,61,.12), 0 12px 44px rgba(0,0,0,.5); }
 .askai__fab:active { transform: scale(.97); }
 .askai__fab:focus-visible, .askai__icon:focus-visible, .askai__chip:focus-visible, .askai__send:focus-visible { outline: 2px solid var(--volt); outline-offset: 3px; }
-.askai__orb { display: grid; place-items: center; width: 38px; height: 38px; flex: none; }
-.askai__orb svg { width: 38px; height: 38px; }
+.askai__orb { display: block; width: 38px; height: 38px; flex: none; }
 .askai.is-open .askai__fab { display: none; }
 
 .askai__panel { display: flex; flex-direction: column; width: min(390px, calc(100vw - 32px)); height: min(600px, calc(100dvh - 32px)); background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: 0 30px 90px rgba(0,0,0,.6); overflow: hidden; animation: askaiIn .4s var(--ease); }
@@ -64,34 +63,101 @@
 @media (prefers-reduced-motion: reduce) { .askai__panel, .askai__dots i { animation: none; } }
 
 
-/* ===== Ask Ahylon robot: pops up, bobs, blinks, brand dots flow round it ===== */
-.askai__bot { position: relative; display: grid; place-items: center; width: 52px; height: 52px; margin-top: -18px; flex: none; }
-.askbot { width: 64px; height: 64px; overflow: visible; }
-.askbot--sm { width: 38px; height: 38px; }
-.askbot__head { fill: #1A1D22; stroke: var(--volt); stroke-width: 1.6; }
-.askbot__ear { fill: var(--volt); }
-.askbot__visor { fill: #0E0F12; }
-.askbot__eyes, .askbot__tip, .askbot__badge { fill: var(--volt); }
-.askbot__stroke { stroke: var(--volt); stroke-width: 1.6; stroke-linecap: round; }
-.askbot__smile { fill: none; stroke: var(--volt); stroke-width: 1.5; stroke-linecap: round; }
-.askbot__ring { fill: var(--volt); opacity: .75; transform-origin: 32px 33px; animation: askbotSpin 9s linear infinite; }
-.askbot--sm .askbot__ring { display: none; }
-.askbot__body { transform-origin: 32px 60px; animation: askbotBob 3.2s ease-in-out infinite; }
-.askbot__eyes { transform-origin: 32px 25px; animation: askbotBlink 4.6s infinite; }
-.askbot__tip { animation: askbotPulse 1.8s ease-in-out infinite; }
-.askbot__badge circle { animation: askbotPulse 2.4s ease-in-out infinite; }
-.askbot__badge circle:nth-child(2n) { animation-delay: .4s; } .askbot__badge circle:nth-child(3n) { animation-delay: .8s; }
-@keyframes askbotSpin { to { transform: rotate(360deg); } }
-@keyframes askbotBob { 0%, 100% { transform: translateY(0) rotate(0); } 30% { transform: translateY(-2.5px) rotate(-3deg); } 70% { transform: translateY(-1px) rotate(3deg); } }
-@keyframes askbotBlink { 0%, 90%, 100% { transform: scaleY(1); } 94% { transform: scaleY(.1); } }
-@keyframes askbotPulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+/* ===== The robot (design A, "dot-sphere orb"): the dotted O of the logo, come to life ===== */
+.askai__bot { position: relative; display: block; width: 52px; height: 52px; margin-top: -18px; flex: none; will-change: translate; }
+.askai__orb { width: 38px; height: 38px; }
+/* Ahylon orb assistant: wrapper .bot-wrap (+ .is-talking / .is-waving) */
+.bot-wrap { display:block; line-height:0; width:100%; height:100%; }
+.bot-wrap svg { width:100%; height:100%; overflow:visible; }
+.bot-wrap .bot-body, .bot-wrap .bot-hands, .bot-wrap .bot-eyes, .bot-wrap .bot-mouth,
+.bot-wrap .bot-hand, .bot-wrap .bot-antenna-tip, .bot-wrap .bot-shadow, .bot-wrap .bot-talk, .bot-wrap .bot-vr {
+  transform-box: fill-box; transform-origin: center;
+}
+
+/* idle: float, blink, dot shimmer flowing diagonally */
+.bot-wrap .bot-body  { animation: bot-float 4.2s ease-in-out infinite; }
+.bot-wrap .bot-hands { animation: bot-float 4.2s ease-in-out -.35s infinite; }
+.bot-wrap .bot-shadow{ animation: bot-shadow 4.2s ease-in-out infinite; }
+.bot-wrap .bot-eyes  { animation: bot-blink 4.6s infinite; }
+.bot-wrap .bot-dots  { animation: bot-shimmer 3.2s ease-in-out infinite; }
+.bot-wrap .bot-d1 { animation-delay: -.8s; }
+.bot-wrap .bot-d2 { animation-delay: -1.6s; }
+.bot-wrap .bot-d3 { animation-delay: -2.4s; }
+.bot-wrap .bot-antenna-tip { animation: bot-live 2.4s ease-in-out infinite; }
+
+@keyframes bot-float  { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-1.6px); } }
+@keyframes bot-shadow { 0%,100% { transform: scaleX(1); opacity:1; } 50% { transform: scaleX(.82); opacity:.7; } }
+@keyframes bot-blink  { 0%,92%,100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+@keyframes bot-shimmer{ 0%,100% { opacity:.95; } 50% { opacity:.5; } }
+@keyframes bot-live   { 0%,100% { opacity:1; } 50% { opacity:.45; } }
+
+/* talking: a big volt mouth opens and closes in a speech rhythm, voice rings pulse out from the orb,
+   she nods along, eyes bright, dots flow faster. Clear even at 40px. */
+.bot-wrap .bot-talk { opacity: 0; transform: scaleY(.15); }
+.bot-wrap .bot-vr   { opacity: 0; }
+.bot-wrap.is-talking .bot-mouth { opacity: 0; }
+.bot-wrap.is-talking .bot-talk  { opacity: 1; animation: bot-speak 1.3s steps(1, end) infinite; }
+.bot-wrap.is-talking .bot-vr1   { animation: bot-ring 1.3s ease-out infinite; }
+.bot-wrap.is-talking .bot-vr2   { animation: bot-ring 1.3s ease-out .65s infinite; }
+.bot-wrap.is-talking .bot-body  { animation: bot-nod .65s ease-in-out infinite; }
+.bot-wrap.is-talking .bot-eyes  { animation: bot-glow .65s ease-in-out infinite alternate; }
+.bot-wrap.is-talking .bot-dots  { animation-duration: 1s; }
+.bot-wrap.is-talking .bot-antenna-tip { animation-duration: .5s; }
+@keyframes bot-speak {
+  0%   { transform: scale(1, .25); }
+  10%  { transform: scale(1, 1); }
+  22%  { transform: scale(.85, .55); }
+  32%  { transform: scale(1.05, 1.15); }
+  44%  { transform: scale(1, .3); }
+  54%  { transform: scale(.9, .9); }
+  64%  { transform: scale(1, .45); }
+  74%  { transform: scale(1.05, 1.2); }
+  86%  { transform: scale(1, .6); }
+  94%  { transform: scale(1, .2); }
+}
+@keyframes bot-ring { 0% { opacity: .85; transform: scale(1); } 100% { opacity: 0; transform: scale(1.32); } }
+@keyframes bot-nod  { 0%,100% { transform: translateY(0) rotate(0); } 30% { transform: translateY(-1.2px) rotate(-1.5deg); } 70% { transform: translateY(.4px) rotate(1.5deg); } }
+@keyframes bot-glow { 0% { opacity: .8; transform: scaleY(.92); } 100% { opacity: 1; transform: scaleY(1.06); } }
+
+/* waving: right hand rises and waves, body tilts toward it, happy eyes */
+.bot-wrap.is-waving .bot-hand-r { animation: bot-wave 1.6s ease-in-out infinite; }
+.bot-wrap.is-waving .bot-body   { animation: bot-lean 1.6s ease-in-out infinite; }
+.bot-wrap.is-waving .bot-eyes   { animation: bot-smile 1.6s ease-in-out infinite; }
+@keyframes bot-wave {
+  0%,100% { transform: translate(0,0); }
+  20% { transform: translate(-1px,-14px) rotate(0); }
+  35% { transform: translate(-3px,-15px); }
+  50% { transform: translate(1px,-15px); }
+  65% { transform: translate(-3px,-15px); }
+  80% { transform: translate(-1px,-14px); }
+}
+@keyframes bot-lean  { 0%,100% { transform: rotate(0); } 20%,80% { transform: rotate(4deg); } }
+@keyframes bot-smile { 0%,100% { transform: scaleY(1); } 20%,80% { transform: scaleY(.7) translateY(-.5px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .bot-wrap *, .bot-wrap.is-talking *, .bot-wrap.is-waving * { animation: none !important; }
+  .bot-wrap.is-talking .bot-talk { transform: scaleY(.8); }
+  .bot-wrap.is-talking .bot-vr1 { opacity: .5; }
+}
+
+/* eyes and hands move smoothly when she follows the cursor */
+.askai .bot-look { transition: translate .18s ease-out; }
+.askai .bot-hand { transition: translate .28s cubic-bezier(.3,1.4,.5,1); }
+/* a bit shy: hands up to her face, eyes squeezed, ducks a little */
+.askai.is-shy .askai__bot .bot-hand-l { translate: 13px -9px !important; }
+.askai.is-shy .askai__bot .bot-hand-r { translate: -13px -9px !important; }
+.askai.is-shy .askai__bot .bot-eyes { scale: 1 .45; }
+.askai.is-shy .askai__bot .bot-body { translate: 0 1.5px; }
+/* hop for attention */
+.askai.is-hey .askai__bot { animation: botHop 1.2s cubic-bezier(.3,1.6,.5,1); }
+@keyframes botHop { 0%,100% { transform: none; } 20% { transform: translateY(-14px) rotate(-8deg); } 40% { transform: translateY(0) rotate(0); } 55% { transform: translateY(-7px) rotate(6deg); } 75% { transform: none; } }
+/* while she's out peeking, stay above page content and clickable */
+.askai.is-roaming .askai__bot { z-index: 3; }
+.askai.is-roaming .askai__hide { opacity: 0; pointer-events: none; }
 
 /* pop out from the corner when the page loads */
 .askai__fab { transform: translateY(140%) scale(.6); opacity: 0; }
 .askai.is-in .askai__fab { transform: none; opacity: 1; transition: transform .9s cubic-bezier(.34,1.56,.64,1) .5s, opacity .3s .5s, box-shadow .35s var(--ease), border-color .3s; }
-.askai__fab:hover .askbot__body { animation-duration: .9s; }
-.askai.is-nudging .askbot__body { animation: askbotWave .7s ease-in-out 3; }
-@keyframes askbotWave { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-9deg) translateY(-3px); } 75% { transform: rotate(9deg) translateY(-3px); } }
 
 /* "are you OK?" speech bubble */
 .askai__nudge { position: absolute; right: 0; bottom: calc(100% + 14px); width: min(290px, calc(100vw - 32px)); padding: 16px 16px 14px; background: var(--bg-2); border: 1px solid rgba(198,255,61,.45); border-radius: 18px 18px 6px 18px; box-shadow: 0 20px 60px rgba(0,0,0,.55); color: var(--fg); font-size: .84rem; line-height: 1.5; animation: askaiPop .55s cubic-bezier(.34,1.56,.64,1); }
@@ -112,7 +178,7 @@
   .askai__fab { border-radius: 50%; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .askbot__ring, .askbot__body, .askbot__eyes, .askbot__tip, .askbot__badge circle, .askai.is-nudging .askbot__body, .askai__nudge { animation: none; }
+  .askai__nudge, .askai.is-hey .askai__bot { animation: none; }
   .askai__fab, .askai.is-in .askai__fab { transform: none; opacity: 1; transition: none; }
 }
 
