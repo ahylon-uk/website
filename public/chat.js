@@ -42,7 +42,7 @@
 
   // the chat brings its own stylesheet (versioned, so browsers never pair new code with old styles)
   // and stays invisible until that stylesheet has loaded
-  const VERSION = '7';
+  const VERSION = '8';
   const css = document.createElement('link');
   css.rel = 'stylesheet'; css.href = `/chat.css?v=${VERSION}`;
   document.head.appendChild(css);
@@ -56,7 +56,7 @@
   root.innerHTML = `
     <div class="askai__nudge" role="status" aria-live="polite" hidden>
       <button class="askai__nudge-x" type="button" aria-label="Dismiss">×</button>
-      <p><strong class="askai__nudge-h"></strong><span class="askai__nudge-t"></span></p>
+      <p><strong class="askai__nudge-h"></strong><span class="askai__nudge-t" aria-hidden="true"></span><span class="sr-only askai__nudge-sr"></span></p>
       <div class="askai__nudge-btns"><button type="button" class="askai__nudge-yes"></button><button type="button" class="askai__nudge-no"></button></div>
     </div>
     <button class="askai__hide" type="button" aria-label="Hide Aysh" title="Hide Aysh">×</button>
@@ -229,14 +229,32 @@
   const nudge = $('.askai__nudge'), nH = $('.askai__nudge-h'), nT = $('.askai__nudge-t'), nYes = $('.askai__nudge-yes'), nNo = $('.askai__nudge-no');
   let onYes = null, onNo = null, autoHide = 0, hovered = false;
 
-  const hideBubble = () => { clearTimeout(autoHide); nudge.hidden = true; root.classList.remove('is-nudging'); };
+  const hideBubble = () => { clearTimeout(autoHide); clearInterval(typeT); const was = !nudge.hidden; nudge.hidden = true; root.classList.remove('is-nudging'); if (was) onBubbleHide(); };
+  let typeT = 0;
   const showBubble = ({ h, t, yes, no, onyes, onno, ttl }) => {
     if (state.open || root.hidden || busy) return false;
-    nH.textContent = h; nT.textContent = ' ' + t;
+    nH.textContent = h; nT.textContent = ''; $('.askai__nudge-sr').textContent = ' ' + t;
     nYes.textContent = yes; nNo.textContent = no; onYes = onyes; onNo = onno;
     nudge.hidden = false;
     root.classList.remove('is-nudging'); void root.offsetWidth; root.classList.add('is-nudging');
-    wave(2400);
+    // he jumps up onto the bubble, then "says" the text as it types out
+    const full = ' ' + t;
+    const typeOut = () => {
+      let i = 0; clearInterval(typeT);
+      if (reduceMotion) { nT.textContent = full; return; }
+      bubbleTalk(true);
+      // the untyped rest is there but invisible, so the bubble keeps its final size while typing
+      const shown = document.createElement('span'), rest = document.createElement('span');
+      rest.className = 'askai__ghost'; nT.replaceChildren(shown, rest);
+      const paint = () => { shown.textContent = full.slice(0, i); rest.textContent = full.slice(i); };
+      paint();
+      typeT = setInterval(() => {
+        i += 2; paint();
+        if (i >= full.length) { clearInterval(typeT); bubbleTalk(false); }
+      }, 32);
+    };
+    nT.innerHTML = '<span class="askai__ghost"></span>'; nT.firstChild.textContent = full;   // final size first
+    onBubbleShow(typeOut);
     clearTimeout(autoHide);
     if (ttl) { const tick = () => { if (hovered) autoHide = setTimeout(tick, 2000); else hideBubble(); }; autoHide = setTimeout(tick, ttl); }
     return true;
@@ -299,6 +317,7 @@
   const buddy = $('.askai__bot'), fabWrap = buddy.querySelector('.bot-wrap'), headWrap = $('.askai__orb .bot-wrap');
   const parts = (w) => ({ look: w.querySelector('.bot-look'), l: w.querySelector('.bot-hand-l'), r: w.querySelector('.bot-hand-r') });
   const fp = parts(fabWrap);
+  const allDots = Array.from(fabWrap.querySelectorAll('.bot-dots'));
   const bot = { mode: 'dock', peeks: 0, px: -1, py: -1, lastMove: Date.now(), raf: 0, timers: [] };
   const later = (fn, ms) => { const t = setTimeout(fn, ms); bot.timers.push(t); return t; };
 
@@ -346,9 +365,11 @@
   fab.addEventListener('pointerleave', () => { clearTimeout(shyT); root.classList.remove('is-shy'); });
 
   // move her around the screen (translate is relative to her spot on the chat button)
+  // his centre when sitting in his spot on the button: where he is now, minus how far he's been moved
   const dockCentre = () => {
-    const r = fab.getBoundingClientRect(), b = 52;
-    return [r.left + 4 + b / 2, r.top + r.height / 2 - 9];
+    const r = buddy.getBoundingClientRect();
+    const [mx, my] = (buddy.style.translate || '0px 0px').split(' ').map((v) => parseFloat(v) || 0);
+    return [r.left + r.width / 2 - mx, r.top + r.height / 2 - my];
   };
   function moveTo(x, y, rot, scale, how) {
     const [cx, cy] = dockCentre();
@@ -364,7 +385,7 @@
       : 'translate 1.1s cubic-bezier(.45,0,.2,1), rotate .6s, scale .6s';
     buddy.style.translate = '0px 0px'; buddy.style.rotate = '0deg'; buddy.style.scale = '1';
     root.classList.remove('is-chasing');
-    later(() => { bot.mode = 'dock'; root.classList.remove('is-roaming', 'is-shy'); }, fast ? 520 : 1150);
+    later(() => { bot.mode = 'dock'; root.classList.remove('is-roaming', 'is-shy'); if (!fast && Math.random() < .6) later(() => trick(Math.random() < .5 ? 'flip' : 'bounce'), 250); }, fast ? 520 : 1150);
   }
   function runAway() {
     bot.mode = 'run';
@@ -505,6 +526,131 @@
     setInterval(() => { if (Date.now() - Math.max(bot.lastOut, pageStart) > 75000 && Date.now() - bot.lastMove < 20000 && canGoOut()) { outing(); peek(); } }, 5000);
     setInterval(hey, 15000);
   }
+
+  // ---------- showing off: entrance, tricks, and hopping onto the pop-up bubbles ----------
+  const sz = () => buddy.getBoundingClientRect().width;
+  const anim = (el, frames, opts) => (el.animate ? el.animate(frames, Object.assign({ fill: 'none' }, opts)) : null);
+
+  // grand entrance: his dots fly in from everywhere and snap into the sphere
+  function assemble() {
+    if (reduceMotion) return;
+    const dirs = [[-26, -30], [28, -24], [-30, 22], [26, 28]];
+    allDots.forEach((g, i) => {
+      const [x, y] = dirs[i % dirs.length];
+      anim(g, [
+        { translate: `${x}px ${y}px`, scale: '1.8', opacity: 0 },
+        { translate: `${x * 0.1}px ${y * 0.1}px`, scale: '0.95', opacity: 1, offset: 0.75 },
+        { translate: '0px 0px', scale: '1', opacity: 1 },
+      ], { duration: 1100, delay: 450 + i * 90, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' });
+    });
+    ['.bot-visor', '.bot-look', '.bot-antenna', '.bot-antenna-tip', '.bot-hands'].forEach((sel, i) => {
+      const el = fabWrap.querySelector(sel); if (!el) return;
+      anim(el, [{ opacity: 0, scale: '.4' }, { opacity: 1, scale: '1.15', offset: .7 }, { opacity: 1, scale: '1' }],
+        { duration: 500, delay: 1150 + i * 70, easing: 'ease-out', fill: 'backwards' });
+    });
+  }
+
+  // tricks
+  const TRICKS = {
+    flip() {   // jump and backflip
+      anim(buddy, [
+        { transform: 'translateY(0) rotate(0) scale(1, 1)' },
+        { transform: 'translateY(4px) rotate(0) scale(1.15, .85)', offset: .12 },
+        { transform: 'translateY(-46px) rotate(-180deg) scale(.95, 1.05)', offset: .5 },
+        { transform: 'translateY(-10px) rotate(-340deg) scale(1)', offset: .82 },
+        { transform: 'translateY(3px) rotate(-360deg) scale(1.15, .85)', offset: .92 },
+        { transform: 'translateY(0) rotate(-360deg) scale(1, 1)' },
+      ], { duration: 1100, easing: 'cubic-bezier(.3,.7,.4,1)' });
+    },
+    spin() {   // 3D-looking twirl
+      anim(buddy, [
+        { transform: 'scale(1, 1)' }, { transform: 'scale(-1, 1.05)', offset: .25 }, { transform: 'scale(1, 1)', offset: .5 },
+        { transform: 'scale(-1, 1.05)', offset: .75 }, { transform: 'scale(1, 1)' },
+      ], { duration: 900, easing: 'ease-in-out' });
+    },
+    bounce() { // squash and stretch, three hops
+      anim(buddy, [
+        { transform: 'translateY(0) scale(1, 1)' },
+        { transform: 'translateY(2px) scale(1.2, .8)', offset: .1 }, { transform: 'translateY(-26px) scale(.9, 1.12)', offset: .25 },
+        { transform: 'translateY(2px) scale(1.2, .8)', offset: .4 }, { transform: 'translateY(-16px) scale(.94, 1.08)', offset: .55 },
+        { transform: 'translateY(2px) scale(1.15, .85)', offset: .7 }, { transform: 'translateY(-7px) scale(1, 1.03)', offset: .83 },
+        { transform: 'translateY(0) scale(1, 1)' },
+      ], { duration: 1300, easing: 'ease-out' });
+    },
+    burst() {  // "the machine, without the matter": dots blow apart and pull back together
+      const dirs = [[-1, -1], [1, -1], [-1, 1], [1, 1]];
+      allDots.forEach((g, i) => {
+        const [x, y] = dirs[i % 4];
+        anim(g, [
+          { translate: '0px 0px', scale: '1', opacity: 1 },
+          { translate: `${x * 18}px ${y * 18}px`, scale: '1.5', opacity: .15, offset: .45 },
+          { translate: `${x * 18}px ${y * 18}px`, scale: '1.5', opacity: .15, offset: .55 },
+          { translate: '0px 0px', scale: '1', opacity: 1 },
+        ], { duration: 1400, delay: i * 40, easing: 'cubic-bezier(.5,0,.2,1)' });
+      });
+      const v = fabWrap.querySelector('.bot-look');
+      anim(v, [{ scale: '1' }, { scale: '1.25', offset: .5 }, { scale: '1' }], { duration: 1400, easing: 'ease-in-out' });
+    },
+  };
+  let lastTrick = '';
+  function trick(name) {
+    if (reduceMotion || root.hidden || state.open || bot.mode !== 'dock' || !nudge.hidden) return;
+    const names = Object.keys(TRICKS).filter((n) => n !== lastTrick);
+    name = name || names[Math.floor(Math.random() * names.length)];
+    lastTrick = name; TRICKS[name]();
+  }
+
+  // jump up and stand on top of the pop-up bubble while "saying" it, hop down when it closes
+  function bubbleTalk(on) { fabWrap.classList.toggle('is-talking', on); }
+  function onBubbleShow(typeOut) {
+    if (reduceMotion || bot.mode !== 'dock') { wave(2400); typeOut(); return; }
+    bot.mode = 'perch';
+    root.classList.add('is-perched');
+    requestAnimationFrame(() => {
+      // measure the bubble's settled spot (layout offsets ignore its pop-in zoom)
+      const rr = root.getBoundingClientRect(), b = { left: rr.left + nudge.offsetLeft, top: rr.top + nudge.offsetTop };
+      const [cx, cy] = dockCentre(), s = 1.15, size = 52 * s;
+      const tx = b.left + 46, ty = b.top - size * (27.5 / 64) + 2;      // feet on the bubble's top edge, clear of the ×
+      const dx = Math.round(tx - cx), dy = Math.round(ty - cy);
+      buddy.style.transition = 'none';
+      const a = anim(buddy, [
+        { translate: '0px 0px', scale: '1', rotate: '0deg' },
+        { translate: '0px 4px', scale: '1.15 .85', rotate: '0deg', offset: .12 },              // crouch
+        { translate: `${dx * .55}px ${dy - 70}px`, scale: '.95 1.1', rotate: '-200deg', offset: .55 },   // leap + flip
+        { translate: `${dx}px ${dy - 6}px`, scale: '1.05', rotate: '-360deg', offset: .85 },
+        { translate: `${dx}px ${dy + 3}px`, scale: `${s * 1.15} ${s * .85}`, rotate: '-360deg', offset: .93 },  // land
+        { translate: `${dx}px ${dy}px`, scale: `${s}`, rotate: '-360deg' },
+      ], { duration: 950, easing: 'cubic-bezier(.3,.6,.4,1)' });
+      buddy.style.translate = `${dx}px ${dy}px`; buddy.style.scale = String(s); buddy.style.rotate = '0deg';
+      const go = () => { wave(1200); typeOut(); };
+      if (a) a.onfinish = go; else go();
+    });
+  }
+  function onBubbleHide() {
+    bubbleTalk(false);
+    if (bot.mode !== 'perch') return;
+    root.classList.remove('is-perched');
+    const cur = buddy.style.translate || '0px 0px';
+    const [dx, dy] = cur.split(' ').map(parseFloat);
+    const a = anim(buddy, [
+      { translate: cur, scale: buddy.style.scale || '1' },
+      { translate: `${dx * .5}px ${Math.min(dy, 0) - 40}px`, scale: '1', offset: .45 },
+      { translate: '0px 3px', scale: '1.15 .85', offset: .85 },
+      { translate: '0px 0px', scale: '1' },
+    ], { duration: 700, easing: 'cubic-bezier(.4,0,.3,1)' });
+    buddy.style.transition = 'none'; buddy.style.translate = '0px 0px'; buddy.style.scale = '1';
+    bot.mode = 'home';
+    later(() => { bot.mode = 'dock'; }, 720);
+  }
+
+  // when he shows off: entrance on arrival, a trick when he gets home, and now and then while you browse
+  if (!reduceMotion && ss.get(HIDE_KEY) !== '1') {
+    assemble();
+    setInterval(() => {
+      if (Date.now() - bot.lastMove < 15000 && Date.now() - bot.lastOut > 12000 && Math.random() < .5) trick();
+    }, 20000);
+  }
+
   // opening the chat brings her home straight away
   fab.addEventListener('click', () => { if (bot.mode !== 'dock') goHome(true); });
 

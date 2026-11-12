@@ -210,3 +210,10 @@ html.askai-holding, html.askai-holding * { cursor: none !important; }
 .askai.is-holding .askai__bot { pointer-events: none; z-index: 3; }
 .askai.is-holding .askai__bot .bot-hand-r { translate: 0 -11px !important; }
 .askai.is-holding .askai__bot .bot-eyes { scale: 1 .7; }
+
+/* standing on top of the pop-up bubble: keep him above it, and leave room for him */
+.askai.is-perched .askai__bot { z-index: 4; }
+.askai.is-perched .askai__fab-txt { opacity: .55; }
+.askai__nudge { margin-bottom: 4px; }
+.askai__nudge .askai__nudge-t { white-space: pre-wrap; }
+.askai__ghost { visibility: hidden; }
