@@ -218,8 +218,13 @@ html.askai-holding, html.askai-holding * { cursor: none !important; }
 .askai__nudge .askai__nudge-t { white-space: pre-wrap; }
 .askai__ghost { visibility: hidden; }
 
-/* the green light line he fires along the bottom of the screen */
-.askai-zap { position: fixed; height: 2px; opacity: 0; pointer-events: none; z-index: 89; transform-origin: 100% 50%;
-  background: linear-gradient(90deg, rgba(198,255,61,0), #C6FF3D 70%, #F4F5F2);
-  box-shadow: 0 0 8px rgba(198,255,61,.9), 0 0 22px rgba(198,255,61,.45); border-radius: 2px; }
-@media (prefers-reduced-motion: reduce) { .askai-zap { display: none; } }
+/* the green liquid puddle he drips below him */
+.askai-drip { position: fixed; left: 0; top: 0; width: 0; height: 0; z-index: 89; pointer-events: none; }
+.askai-drip i { position: absolute; left: 0; top: 0; display: block; opacity: 0; }
+.askai-drip__drop { width: 6px; height: 8px; margin-top: -8px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: radial-gradient(circle at 35% 30%, #F4F5F2 0 18%, #C6FF3D 40%); box-shadow: 0 0 8px rgba(198,255,61,.8); }
+.askai-drip__pool { width: 64px; height: 9px;
+  background: radial-gradient(ellipse at 40% 35%, rgba(244,245,242,.85) 0 6%, #C6FF3D 22%, rgba(198,255,61,.75) 60%, rgba(198,255,61,.15) 100%);
+  box-shadow: 0 0 14px rgba(198,255,61,.65), 0 0 30px rgba(198,255,61,.25); }
+.askai-drip__ring { width: 64px; height: 10px; border: 1.5px solid rgba(198,255,61,.8); border-radius: 50%; }
+@media (prefers-reduced-motion: reduce) { .askai-drip { display: none; } }

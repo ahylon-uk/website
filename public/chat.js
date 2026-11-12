@@ -42,7 +42,7 @@
 
   // the chat brings its own stylesheet (versioned, so browsers never pair new code with old styles)
   // and stays invisible until that stylesheet has loaded
-  const VERSION = '9';
+  const VERSION = '10';
   const css = document.createElement('link');
   css.rel = 'stylesheet'; css.href = `/chat.css?v=${VERSION}`;
   document.head.appendChild(css);
@@ -652,11 +652,13 @@
   }
 
 
-  // ---------- every 3 s: a quick hand shake below him that fires a green light line across the screen ----------
-  const zapLine = document.createElement('div');
-  zapLine.className = 'askai-zap';
-  zapLine.setAttribute('aria-hidden', 'true');
-  document.body.appendChild(zapLine);
+  // ---------- every 3 s: a quick hand shake drips a green liquid puddle below him ----------
+  const drip = document.createElement('div');
+  drip.className = 'askai-drip';
+  drip.setAttribute('aria-hidden', 'true');
+  drip.innerHTML = '<i class="askai-drip__drop"></i><i class="askai-drip__pool"></i><i class="askai-drip__ring"></i><i class="askai-drip__ring"></i>';
+  document.body.appendChild(drip);
+  const [dDrop, dPool, dRing1, dRing2] = drip.children;
   function zap() {
     if (reduceMotion || root.hidden || state.open || document.hidden || bot.mode !== 'dock' || !nudge.hidden) return;
     const hand = fabWrap.querySelector('.bot-hand-r');
@@ -664,16 +666,31 @@
       { translate: '0px 0px' }, { translate: '1px 5px', offset: .2 }, { translate: '-1px 1px', offset: .4 },
       { translate: '1px 6px', offset: .6 }, { translate: '0px 2px', offset: .8 }, { translate: '0px 0px' },
     ], { duration: 520, easing: 'ease-in-out' });
-    const h = hand.getBoundingClientRect(), f = fab.getBoundingClientRect();
-    const x = h.left + h.width / 2, y = Math.min(innerHeight - 4, f.bottom + 6);
-    zapLine.style.top = `${y}px`;
-    zapLine.style.right = `${innerWidth - x}px`;
-    zapLine.style.width = `${x}px`;
-    anim(zapLine, [
-      { transform: 'scaleX(0)', opacity: 1 },
-      { transform: 'scaleX(1)', opacity: 1, offset: .55 },
-      { transform: 'scaleX(1)', opacity: 0 },
-    ], { duration: 1100, delay: 180, easing: 'cubic-bezier(.2,.7,.2,1)' });
+    const h = fabWrap.querySelector('.bot-hand-r').getBoundingClientRect(), f = fab.getBoundingClientRect();
+    const x = h.left + h.width / 2, floor = Math.min(innerHeight - 5, f.bottom + 7);
+    drip.style.left = `${x}px`; drip.style.top = `${floor}px`;
+    const fall = floor - (h.top + h.height);
+    // the drop stretches as it falls from his hand to the floor
+    anim(dDrop, [
+      { transform: `translate(-50%, ${-fall}px) scale(.6, .6)`, opacity: 1 },
+      { transform: `translate(-50%, ${-fall * .4}px) scale(.8, 1.4)`, opacity: 1, offset: .6 },
+      { transform: 'translate(-50%, -2px) scale(1.3, .5)', opacity: 1, offset: .95 },
+      { transform: 'translate(-50%, 0) scale(1.6, .2)', opacity: 0 },
+    ], { duration: 420, delay: 260, easing: 'cubic-bezier(.55,0,1,.45)', fill: 'backwards' });
+    // splat: the pool spreads, wobbles like liquid, then soaks away
+    anim(dPool, [
+      { transform: 'translate(-50%, -50%) scale(0, 0)', opacity: 1, borderRadius: '50%' },
+      { transform: 'translate(-50%, -50%) scale(1.15, 1.3)', opacity: 1, borderRadius: '46% 54% 52% 48% / 60% 40% 60% 40%', offset: .18 },
+      { transform: 'translate(-50%, -50%) scale(.92, .9)', opacity: 1, borderRadius: '55% 45% 47% 53% / 40% 60% 40% 60%', offset: .32 },
+      { transform: 'translate(-50%, -50%) scale(1.04, 1)', opacity: .95, borderRadius: '48% 52% 50% 50% / 55% 45% 55% 45%', offset: .5 },
+      { transform: 'translate(-50%, -50%) scale(1, .95)', opacity: .8, borderRadius: '50%', offset: .75 },
+      { transform: 'translate(-50%, -50%) scale(.6, .5)', opacity: 0, borderRadius: '50%' },
+    ], { duration: 2300, delay: 670, easing: 'ease-out', fill: 'backwards' });
+    // ripples run out across the puddle
+    [dRing1, dRing2].forEach((r, i) => anim(r, [
+      { transform: 'translate(-50%, -50%) scale(.2)', opacity: .9 },
+      { transform: 'translate(-50%, -50%) scale(1.9)', opacity: 0 },
+    ], { duration: 1100, delay: 690 + i * 260, easing: 'cubic-bezier(.2,.6,.3,1)', fill: 'backwards' }));
   }
   if (!reduceMotion) setInterval(zap, 3000);
 
