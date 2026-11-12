@@ -57,8 +57,19 @@
       </g>
     </svg>`;
 
+  // the chat brings its own stylesheet (versioned, so browsers never pair new code with old styles)
+  // and stays invisible until that stylesheet has loaded
+  const VERSION = '3';
+  const css = document.createElement('link');
+  css.rel = 'stylesheet'; css.href = `/chat.css?v=${VERSION}`;
+  document.head.appendChild(css);
+
   const root = document.createElement('div');
   root.className = 'askai';
+  root.style.visibility = 'hidden';
+  const reveal = () => { root.style.visibility = ''; };
+  css.addEventListener('load', reveal);
+  css.addEventListener('error', () => root.remove());
   root.innerHTML = `
     <div class="askai__nudge" role="status" aria-live="polite" hidden>
       <button class="askai__nudge-x" type="button" aria-label="Dismiss">×</button>
