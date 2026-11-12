@@ -15,7 +15,7 @@ const DEFAULT_MODEL = "claude-haiku-5-5";
 const API_URL = "https://api.anthropic.com/v1/messages";
 const MAX_TURNS = 16;          // messages kept from the conversation
 const MAX_CHARS = 1200;        // per visitor message
-const MAX_TOKENS = 350;        // per reply (replies are meant to be short)
+const MAX_TOKENS = 800;        // ceiling only: the instructions keep replies to a few sentences
 
 const KNOWLEDGE = `
 # About Ahylon
@@ -162,10 +162,11 @@ export async function handleChat(request, env, ctx, cors, sendMail) {
         { type: "text", text: SYSTEM_FULL, cache_control: { type: "ephemeral" } },
         { type: "text", text: `The visitor is on the page: ${page || "/"}. Today is ${new Date().toISOString().slice(0, 10)}.` },
       ];
-      let convo = messages;
+      let convo = messages, said = 0;
       for (let round = 0; round < 3; round++) {
         const res = await callClaude(env, system, convo);
         const { content, stop } = await relayStream(res, emit);
+        said += content.filter((b) => b.type === "text").reduce((n, b) => n + b.text.length, 0);
         if (stop !== "tool_use") break;
 
         const results = [];
@@ -180,6 +181,7 @@ export async function handleChat(request, env, ctx, cors, sendMail) {
         }
         convo = [...convo, { role: "assistant", content }, { role: "user", content: results }];
       }
+      if (!said) await emit({ t: "text", v: "Sorry, I didn't catch that. Could you ask me again? Or [book a demo](/contact/) and the team will help." });
       await emit({ t: "done" });
     } catch (err) {
       console.error("chat failed", err && err.message);
@@ -228,6 +230,7 @@ async function callClaude(env, system, messages) {
       system,
       tools: TOOLS,
       messages,
+      thinking: { type: "disabled" }, // quick sales chat: no thinking, so replies start fast and never run out of room
       stream: true,
     }),
   });
@@ -249,7 +252,10 @@ async function relayStream(res, emit) {
     switch (ev.type) {
       case "content_block_start": {
         const b = ev.content_block;
-        blocks[ev.index] = b.type === "tool_use" ? { type: "tool_use", id: b.id, name: b.name, _json: "" } : { type: "text", text: "" };
+        if (b.type === "tool_use") blocks[ev.index] = { type: "tool_use", id: b.id, name: b.name, _json: "" };
+        else if (b.type === "thinking") blocks[ev.index] = { type: "thinking", thinking: "", signature: "" };
+        else if (b.type === "redacted_thinking") blocks[ev.index] = { type: "redacted_thinking", data: b.data };
+        else blocks[ev.index] = { type: "text", text: "" };
         break;
       }
       case "content_block_delta": {
@@ -257,6 +263,8 @@ async function relayStream(res, emit) {
         if (!b) break;
         if (ev.delta.type === "text_delta") { b.text += ev.delta.text; await emit({ t: "text", v: ev.delta.text }); }
         else if (ev.delta.type === "input_json_delta") b._json += ev.delta.partial_json;
+        else if (ev.delta.type === "thinking_delta") b.thinking += ev.delta.thinking;
+        else if (ev.delta.type === "signature_delta") b.signature += ev.delta.signature;
         break;
       }
       case "message_delta":
