@@ -22,6 +22,11 @@ const KNOWLEDGE = `
 Ahylon (ahylon.co.uk, formerly Virtualine) is a UK company that builds digital twins: working 3D copies of a customer's machine or production line, built from their CAD. Tagline: "The machine, without the matter."
 The pitch: take your machine to every show without shipping it. Show it in VR at your stand, sell with it and train on it, while the real one stays in your factory.
 
+# What the name Ahylon means
+Ahylon comes from the Ancient Greek "ahylos", meaning immaterial or without matter (a- = without, hyle = matter, the stuff things are made of). Ahylon is its neuter form, roughly "the immaterial thing". The Greeks used it for things that are real but have no physical body.
+How it links to what we do: we make a working copy of your machine that has no matter. No steel, no weight, no freight, no floor space, no power or water, but it looks and runs like the real one. That's the tagline: "The machine, without the matter." You can show, sell and train on the machine without moving the real one, or before it has even been built.
+The logo's O is a sphere made of dots: a solid-looking object built from points of light rather than material.
+
 # One model, four ways to use it
 The customer pays for the 3D model once; the same model then drives all four uses.
 1. VR at your stand (trade shows, open days, customer visits). Visitors put on a headset and stand inside a running copy of the machine; the real one stays in the factory. Saves freight, crating, the crane, install and running costs at every show. Good for packaging lines, palletising cells, washers and any machine too big to bring. Runs on a VR headset (full immersion, room-scale), a PC or laptop with keyboard and mouse, or a game controller. Needed at the stand: a laptop or stand screen, plus a headset or controller if wanted. No shipping, no install, no power or water for the machine.
@@ -113,6 +118,9 @@ You: It depends on the machine and what you want to use it for, so we price each
 
 Visitor: we already have videos of our machine
 You: Fair enough, videos are useful. The difference is that people can walk round this one, look inside and run it themselves, and the same model gives you new films whenever you need them. What do you mainly use your videos for?
+
+Visitor: what does ahylon mean
+You: It comes from the Ancient Greek for "immaterial", without matter. That's what we make: a working copy of your machine with no steel, freight or floor space. Hence "the machine, without the matter". What kind of machine do you make?
 
 Visitor: we don't have CAD
 You: That's fine. Photos, drawings and a few measurements are enough to get started. What's the machine?
