@@ -42,7 +42,7 @@
 
   // the chat brings its own stylesheet (versioned, so browsers never pair new code with old styles)
   // and stays invisible until that stylesheet has loaded
-  const VERSION = '8';
+  const VERSION = '9';
   const css = document.createElement('link');
   css.rel = 'stylesheet'; css.href = `/chat.css?v=${VERSION}`;
   document.head.appendChild(css);
@@ -650,6 +650,32 @@
       if (Date.now() - bot.lastMove < 15000 && Date.now() - bot.lastOut > 12000 && Math.random() < .5) trick();
     }, 20000);
   }
+
+
+  // ---------- every 3 s: a quick hand shake below him that fires a green light line across the screen ----------
+  const zapLine = document.createElement('div');
+  zapLine.className = 'askai-zap';
+  zapLine.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(zapLine);
+  function zap() {
+    if (reduceMotion || root.hidden || state.open || document.hidden || bot.mode !== 'dock' || !nudge.hidden) return;
+    const hand = fabWrap.querySelector('.bot-hand-r');
+    anim(hand, [
+      { translate: '0px 0px' }, { translate: '1px 5px', offset: .2 }, { translate: '-1px 1px', offset: .4 },
+      { translate: '1px 6px', offset: .6 }, { translate: '0px 2px', offset: .8 }, { translate: '0px 0px' },
+    ], { duration: 520, easing: 'ease-in-out' });
+    const h = hand.getBoundingClientRect(), f = fab.getBoundingClientRect();
+    const x = h.left + h.width / 2, y = Math.min(innerHeight - 4, f.bottom + 6);
+    zapLine.style.top = `${y}px`;
+    zapLine.style.right = `${innerWidth - x}px`;
+    zapLine.style.width = `${x}px`;
+    anim(zapLine, [
+      { transform: 'scaleX(0)', opacity: 1 },
+      { transform: 'scaleX(1)', opacity: 1, offset: .55 },
+      { transform: 'scaleX(1)', opacity: 0 },
+    ], { duration: 1100, delay: 180, easing: 'cubic-bezier(.2,.7,.2,1)' });
+  }
+  if (!reduceMotion) setInterval(zap, 3000);
 
   // opening the chat brings her home straight away
   fab.addEventListener('click', () => { if (bot.mode !== 'dock') goHome(true); });
