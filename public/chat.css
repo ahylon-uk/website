@@ -198,3 +198,15 @@
 /* while the HoneyLine is running full screen, keep the robot small and out of the way */
 html.try-lock .askai__fab-txt { display: none; }
 html.try-lock .askai__fab { padding: 2px; border-radius: 50%; }
+
+/* chasing the cursor: clicks pass through him, and he "runs" (quick bob) */
+.askai.is-chasing .askai__bot { pointer-events: none; }
+.askai.is-chasing .bot-body { animation-duration: .45s !important; }
+.askai.is-chasing .bot-hands { animation-duration: .45s !important; }
+
+/* holding the cursor: the real arrow is hidden and a drawn one sits in his raised hand */
+html.askai-holding, html.askai-holding * { cursor: none !important; }
+.askai-cursor { display: none; position: fixed; left: 0; top: 0; z-index: 2147483000; pointer-events: none; }
+.askai.is-holding .askai__bot { pointer-events: none; z-index: 3; }
+.askai.is-holding .askai__bot .bot-hand-r { translate: 0 -11px !important; }
+.askai.is-holding .askai__bot .bot-eyes { scale: 1 .7; }

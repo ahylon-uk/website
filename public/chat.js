@@ -42,7 +42,7 @@
 
   // the chat brings its own stylesheet (versioned, so browsers never pair new code with old styles)
   // and stays invisible until that stylesheet has loaded
-  const VERSION = '5';
+  const VERSION = '7';
   const css = document.createElement('link');
   css.rel = 'stylesheet'; css.href = `/chat.css?v=${VERSION}`;
   document.head.appendChild(css);
@@ -363,6 +363,7 @@
       ? 'translate .5s cubic-bezier(.6,-.35,.7,1), rotate .3s, scale .4s'
       : 'translate 1.1s cubic-bezier(.45,0,.2,1), rotate .6s, scale .6s';
     buddy.style.translate = '0px 0px'; buddy.style.rotate = '0deg'; buddy.style.scale = '1';
+    root.classList.remove('is-chasing');
     later(() => { bot.mode = 'dock'; root.classList.remove('is-roaming', 'is-shy'); }, fast ? 520 : 1150);
   }
   function runAway() {
@@ -376,7 +377,7 @@
     const side = vw < 560 ? 'right' : (Math.random() < .5 ? 'left' : 'right');
     const x = side === 'left' ? size * 0.18 : vw - size * 0.18;
     const y = vh * (0.28 + Math.random() * 0.34);
-    bot.mode = 'peek'; bot.peeks++;
+    bot.mode = 'peek'; bot.peeks++; bot.lastOut = Date.now();
     root.classList.add('is-roaming');
     // slip off-screen first, then lean in from the edge
     moveTo(side === 'left' ? -size : vw + size, y, side === 'left' ? 30 : -30, 1.6, 'none');
@@ -386,6 +387,112 @@
     later(() => { if (bot.mode === 'peek') wave(1600); }, 950);
     later(() => { if (bot.mode === 'peek') goHome(false); }, 6200);
   }
+
+  // ---------- chase and hold ----------
+  // He runs after the cursor for up to 10 s. He starts a bit slower than a quick hand and speeds up,
+  // so visitors can play keep-away. If he catches it he holds it for 3 s: the real arrow is hidden
+  // and a drawn one sits in his hand, but it still follows the mouse exactly, so nobody loses control.
+  let lastPointerType = '';
+  addEventListener('pointermove', (e) => { lastPointerType = e.pointerType; }, { passive: true });
+  const CHASE_MAX = 10000, HOLD_FOR = 3000;
+  const fakeCursor = document.createElement('div');
+  fakeCursor.className = 'askai-cursor';
+  fakeCursor.innerHTML = '<svg viewBox="0 0 20 26" width="20" height="26" aria-hidden="true"><path d="M2 2l15 13.5-6.6.6 4 7.6-3 1.6-4-7.7L2 22z" fill="#F4F5F2" stroke="#0E0F12" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+  document.body.appendChild(fakeCursor);
+  // where his centre goes so his raised right hand is holding the tail of the arrow
+  const holdSpot = () => [bot.px - 14, bot.py + 20];
+
+  function chase() {
+    if (!canGoOut() || lastPointerType !== 'mouse' || bot.px < 0) return false;
+    bot.mode = 'chase'; outing();
+    root.classList.add('is-roaming', 'is-chasing');
+    buddy.style.transition = 'scale .4s';
+    buddy.style.scale = '1.3';
+    let [x, y] = dockCentre(), close = 0;
+    const started = Date.now();
+    const step = () => {
+      if (bot.mode !== 'chase') return;
+      if (state.open || document.hidden) { root.classList.remove('is-chasing'); goHome(true); return; }
+      const t = Date.now() - started;
+      const [tx, ty] = holdSpot();
+      let vx = (tx - x) * 0.16, vy = (ty - y) * 0.16;
+      // top speed rises from about 330 to 780 px a second over the chase
+      const max = 5.5 + Math.min(1, t / 7000) * 7.5, v = Math.hypot(vx, vy);
+      if (v > max) { vx *= max / v; vy *= max / v; }
+      x += vx; y += vy;
+      const [cx, cy] = dockCentre();
+      buddy.style.translate = `${Math.round(x - cx)}px ${Math.round(y - cy)}px`;
+      buddy.style.rotate = `${Math.max(-24, Math.min(24, vx * 2.2))}deg`;
+      if (!bot.raf) bot.raf = requestAnimationFrame(track);
+      close = Math.hypot(tx - x, ty - y) < 16 ? close + 1 : 0;
+      if (close > 8) { hold(); return; }                                   // caught it
+      if (t > CHASE_MAX) { root.classList.remove('is-chasing'); goHome(false); return; }   // tired, gives up
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+    return true;
+  }
+
+  function hold() {
+    bot.mode = 'hold';
+    root.classList.remove('is-chasing'); root.classList.add('is-holding');
+    document.documentElement.classList.add('askai-holding');
+    fakeCursor.style.display = 'block';
+    const until = Date.now() + HOLD_FOR;
+    const step = () => {
+      if (bot.mode !== 'hold') return;
+      const [tx, ty] = holdSpot(), [cx, cy] = dockCentre();
+      buddy.style.transition = 'scale .4s';
+      buddy.style.translate = `${Math.round(tx - cx)}px ${Math.round(ty - cy)}px`;
+      buddy.style.rotate = '0deg';
+      fakeCursor.style.translate = `${bot.px - 2}px ${bot.py - 2}px`;
+      if (Date.now() > until || state.open || document.hidden) { release(); return; }
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+  function release() {
+    document.documentElement.classList.remove('askai-holding');
+    fakeCursor.style.display = 'none';
+    root.classList.remove('is-holding');
+    wave(1400);
+    later(() => goHome(false), 500);
+  }
+
+  // ---------- when he comes out: reacting to the visitor, not a clock ----------
+  const OUT_GAP = 22000;                 // at least this long between outings
+  const pageStart = Date.now();
+  bot.lastOut = 0; bot.energy = 0; bot.scrolled = 0; bot.nearSince = 0;
+  function outing() { bot.lastOut = Date.now(); bot.energy = 0; bot.scrolled = 0; bot.nearSince = 0; }
+  function busyTyping() {
+    const a = document.activeElement;
+    return a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) || (a && a.isContentEditable);
+  }
+  function canGoOut() {
+    return !reduceMotion && !state.open && !root.hidden && !document.hidden && !busy && bot.mode === 'dock'
+      && nudge.hidden && !busyTyping() && ss.get(HIDE_KEY) !== '1'
+      && Date.now() - pageStart > 8000 && Date.now() - bot.lastOut > OUT_GAP;
+  }
+  // lots of mouse movement: he gets excited and comes to play
+  let lastX = -1, lastY = -1;
+  addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse') return;
+    if (lastX >= 0) bot.energy += Math.hypot(e.clientX - lastX, e.clientY - lastY);
+    lastX = e.clientX; lastY = e.clientY;
+    // the cursor hanging around near his corner (but not on him) makes him curious
+    const r = buddy.getBoundingClientRect(), d = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2));
+    if (d < 280 && d > 60) { if (!bot.nearSince) bot.nearSince = Date.now(); } else bot.nearSince = 0;
+    if (bot.energy > 5000 || (bot.nearSince && Date.now() - bot.nearSince > 2200)) chase();
+  }, { passive: true });
+  setInterval(() => { bot.energy *= 0.7; }, 1000);         // excitement fades if you calm down
+  // scrolling a good way: he peeks in from the edge once you stop
+  let lastScrollY = scrollY, scrollStop = 0;
+  addEventListener('scroll', () => {
+    bot.scrolled += Math.abs(scrollY - lastScrollY); lastScrollY = scrollY;
+    clearTimeout(scrollStop);
+    scrollStop = setTimeout(() => { if (bot.scrolled > 1200 && canGoOut()) { outing(); peek(); } }, 700);
+  }, { passive: true });
+
   // hop for attention when she's been ignored a while
   function hey() {
     if (reduceMotion || state.open || root.hidden || bot.mode !== 'dock' || !nudge.hidden) return;
@@ -394,7 +501,8 @@
     later(() => root.classList.remove('is-hey'), 1300);
   }
   if (!reduceMotion && ss.get(HIDE_KEY) !== '1') {
-    later(function loop() { peek(); later(loop, 38000 + Math.random() * 32000); }, 16000 + Math.random() * 8000);
+    // fallback: if nothing has brought him out for a while but the visitor is still active, peek
+    setInterval(() => { if (Date.now() - Math.max(bot.lastOut, pageStart) > 75000 && Date.now() - bot.lastMove < 20000 && canGoOut()) { outing(); peek(); } }, 5000);
     setInterval(hey, 15000);
   }
   // opening the chat brings her home straight away
